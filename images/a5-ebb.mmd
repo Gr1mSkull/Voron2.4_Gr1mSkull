@@ -1,0 +1,15 @@
+flowchart TB
+    subgraph E["EBB SB2209 (RP2040) — на печатающей голове"]
+      EXT["Мотор экструдера<br/>step gpio18 · dir gpio19 · en gpio17 · uart gpio20"]
+      HE["Нагреватель сопла — gpio7"]
+      TH["Термистор сопла — gpio27<br/>(ATC Semitec 104GT-2)"]
+      NTC["Доп. термистор — gpio28"]
+      PF["Обдув детали — gpio13"]
+      HF["Обдув хотенда — gpio14 (>50°C)"]
+      RGB["RGB Stealthburner — gpio16 (3× GRBW)"]
+      FAN3["Вент. RGB / tach — gpio15 / gpio12"]
+      TAP["Voron Tap (Z) — gpio22"]
+      XE["Концевик X (физ.) — gpio6"]
+      FIL["Датчик филамента — gpio24"]
+      ADXL["ADXL345 (резонансы) — gpio0..3 SPI"]
+    end

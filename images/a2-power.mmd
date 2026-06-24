@@ -1,0 +1,9 @@
+flowchart LR
+    WALL["Розетка ~220В"] --> FUSE["Предохранитель / фильтр"]
+    FUSE --> PSU24["БП 24В DC"]
+    FUSE --> SSRin["SSR вход ~220В"]
+    PSU24 -->|"24В"| MANTA["Manta M8P"]
+    PSU24 -->|"24В (по CAN-кабелю)"| EBB["EBB SB2209"]
+    MANTA -->|"3-32В DC упр. сигнал (PA1)"| SSRctrl["SSR управление"]
+    SSRin --> SSRout["SSR выход"]
+    SSRout -->|"~220В"| BED["Нагреватель стола"]

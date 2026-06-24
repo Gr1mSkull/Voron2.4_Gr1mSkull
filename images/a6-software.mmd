@@ -1,0 +1,12 @@
+flowchart TB
+    A["1. Записать Debian на microSD<br/>(Raspberry Pi Imager)"] --> B["2. Вставить в CB2, подать питание"]
+    B --> C["3. Войти по SSH"]
+    C --> D["4. sudo apt update && upgrade"]
+    D --> E["5. KIAUH: Klipper + Moonraker + Mainsail"]
+    E --> F["6. git clone Katapult"]
+    F --> G["7. Прошить Manta (CAN-мост, STM32H723)"]
+    G --> H["8. Поднять интерфейс can0"]
+    H --> I["9. Прошить EBB по CAN (RP2040)"]
+    I --> J["10. Узнать UUID: flash_can.py -q"]
+    J --> K["11. Залить klipper_config + вписать UUID"]
+    K --> L["12. Калибровка → печать"]

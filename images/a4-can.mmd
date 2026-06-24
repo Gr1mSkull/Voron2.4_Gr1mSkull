@@ -1,0 +1,4 @@
+flowchart LR
+    T1["⏚ 120Ω<br/>(джампер CAN_120R)"] --- MANTA["Manta M8P<br/>CAN PD0 / PD1"]
+    MANTA === EBB["EBB SB2209<br/>CAN gpio4 / gpio5"]
+    EBB --- T2["⏚ 120Ω<br/>(джампер 120R)"]

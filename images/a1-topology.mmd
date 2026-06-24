@@ -1,0 +1,9 @@
+flowchart LR
+    PSU["Блок питания 24В"] -->|"+24В / GND"| MANTA
+    MAINS["Сеть ~220В"] --> SSR["Твердотельное реле SSR 25A"]
+    SSR -->|"~220В"| BED["Нагреватель стола ~300Вт"]
+    MANTA["Manta M8P v2.0<br/>STM32H723 + CAN-мост"] -->|"сигнал PA1"| SSR
+    CB2["CB2<br/>Linux + Klipper"] -.->|"вставлен в слот"| MANTA
+    MANTA -->|"CAN-H / CAN-L  1 Мбит"| EBB["EBB SB2209<br/>RP2040 (голова)"]
+    MANTA -.->|"опц. USB или CAN"| CARTO["Cartographer 3D"]
+    BEDTH["Термистор стола"] -->|"PB1"| MANTA

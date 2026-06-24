@@ -1,0 +1,15 @@
+flowchart TB
+    subgraph M["Manta M8P v2.0 — слоты драйверов"]
+      X["stepper_x<br/>step PE6 · dir PE5 · en PC14 · uart PC13"]
+      Y["stepper_y<br/>step PE2 · dir PE1 · en PE4 · uart PE3"]
+      Z0["stepper_z<br/>PB8 · PB7 · PE0 · PB9"]
+      Z1["stepper_z1<br/>PG13 · PG12 · PG15 · PG14"]
+      Z2["stepper_z2<br/>PG9 · PD7 · PG11 · PG10"]
+      Z3["stepper_z3<br/>PD4 · PD3 · PD6 · PD5"]
+    end
+    X --> MX["Мотор X (ремень B)"]
+    Y --> MY["Мотор Y (ремень A)"]
+    Z0 --> MZ0["Z перед-лев"]
+    Z1 --> MZ1["Z зад-лев"]
+    Z2 --> MZ2["Z зад-прав"]
+    Z3 --> MZ3["Z перед-прав"]
