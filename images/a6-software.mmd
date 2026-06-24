@@ -1,8 +1,8 @@
 flowchart TB
-    A["1. Записать Debian на microSD<br/>(Raspberry Pi Imager)"] --> B["2. Вставить в CB2, подать питание"]
+    A["1. Записать образ ОС на microSD<br/>(CB2 V3.0.2 или MainsailOS 3.0)"] --> B["2. Вставить в хост, подать питание"]
     B --> C["3. Войти по SSH"]
     C --> D["4. sudo apt update && upgrade"]
-    D --> E["5. KIAUH: Klipper + Moonraker + Mainsail"]
+    D --> E["5. Klipper/Moonraker/Mainsail уже в образе<br/>(KIAUH: добавить Katapult)"]
     E --> F["6. git clone Katapult"]
     F --> G["7. Прошить Manta (CAN-мост, STM32H723)"]
     G --> H["8. Поднять интерфейс can0"]

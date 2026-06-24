@@ -27,7 +27,7 @@ cd ~/klipper && make clean && make
 sudo dfu-util -a 0 -d 0483:df11 --dfuse-address 0x08020000 -D ~/klipper/out/klipper.bin
 ```
 
-## 2. Интерфейс can0 на CB2 (Debian 11)
+## 2. Интерфейс can0 на CB2 (образ BTT CB2 V3.0.2 — Debian 12, kernel 6.1)
 
 Файл `/etc/network/interfaces.d/can0`:
 
