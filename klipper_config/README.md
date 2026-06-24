@@ -1,6 +1,6 @@
 # Voron 2.4 Gr1mSkull — Klipper Configuration
 
-**Сборка:** 500×500×480 | Manta M8P v2.0 + CB2 | EBB SB2209 CAN | Clockwork 2 / Stealthburner | Bambu X1C hotend 0.4 | Voron Tap | Cartographer (опционально)
+**Сборка:** 500×500×480 | Manta M8P v2.0 + CB2 (образ BTT CB2 V3.0.2 — Debian 12) | EBB SB2209 CAN | Clockwork 2 / Stealthburner | Bambu X1C hotend 0.4 | Voron Tap | Cartographer (опционально)
 
 ## Установка
 
