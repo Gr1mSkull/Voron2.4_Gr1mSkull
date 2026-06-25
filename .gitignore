@@ -7,3 +7,8 @@ Desktop.ini
 *.swp
 *~
 .vscode/
+
+# PDF build (node build-pdf.js)
+node_modules/
+instruction.html
+mdpdf*.log
