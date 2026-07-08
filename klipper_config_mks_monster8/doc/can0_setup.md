@@ -3,32 +3,74 @@
 > Прошивки MCU собирайте из **~/kalico**, не из ~/klipper.
 > Установка Kalico и плагина Cartographer: `doc/kalico_setup.md`
 
-## 1. Прошивка Monster8 (Kalico, режим USB-to-CAN bridge)
-
-> В этом режиме **PB0 и PB1 зарезервированы под CAN** (разъёмы HE0/HE1).
-> Распиновка корпуса как в [эталоне deflord/3def](https://github.com/deflord/3def/tree/main/Конфигурационные%20файлы/MKS%208V2/SB2040V3/500):
-> PA0 — вентилятор аппаратного отсека, PA3 — вытяжка, PA8 — neopixel подсветка.
-> Nevermore в эталоне на PB0 (HE1) — в CAN-режиме перенесён на **PA2 (FAN0)** (см. `printer.cfg`).
+## 0. Диагностика UUID (читать первым при ошибках ADC / pin)
 
 ```bash
 sudo systemctl stop klipper
-cd ~/kalico
-make menuconfig
+~/klippy-env/bin/python ~/kalico/scripts/canbus_query.py can0
 ```
 
-**Kalico (Monster8 V2.0):**
+После `FIRMWARE_RESTART` в **klippy.log** для каждой секции смотрите строку `MCU '…' config: MCU=…`:
+
+| Секция в printer.cfg | Должно быть в логе | НЕ должно быть |
+|----------------------|-------------------|----------------|
+| `[mcu]` | `MCU=stm32f407xx` | `stm32g0b1xx`, `rp2040`, `CARTOGRAPHER` |
+| `[mcu EBBCan]` | `MCU=rp2040` (Kalico) | `stm32f407xx`, `CANBUS_BRIDGE=1`, `CARTOGRAPHER` |
+| `[mcu cartographer]` | `CARTOGRAPHER` | `stm32f407`, `rp2040` |
+
+### Типичная ошибка (как в вашем логе)
+
+```
+MCU 'mcu' config: MCU=stm32g0b1xx        ← в [mcu] UUID от UTOC/U2C (G0B1)
+MCU 'EBBCan' config: MCU=stm32f407xx CANBUS_BRIDGE=1  ← Monster8 в слоте EBB
+MCU 'mcu' shutdown: Not a valid ADC pin  ← пины Monster8 ушли на чужой чип
+```
+
+**Причина:** UUID перепутаны. Пины `PC0`, `PE6`, `PA0`… относятся к **Monster8 F407**, а не к G0B1.
+
+**Исправление:**
+1. `canbus_query.py can0` — список UUID на шине
+2. UUID с **stm32f407** (Monster8) → `[mcu]`
+3. UUID с **rp2040** (EBB SB2209) → `[mcu EBBCan]`
+4. UUID Cartographer → `[mcu cartographer]`
+5. **G0B1 / UTOC / U2C** — не прописывать в `[mcu]` (это USB↔CAN адаптер, не плата принтера)
+
+---
+
+## 1. Два варианта подключения Monster8
+
+### Вариант A — Monster8 как USB-CAN мост (can0 на Pi через USB Monster8)
+
+Monster8 прошит **USB to CAN bus bridge**. Pi видит `can0` через USB.  
+На CAN-шине Monster8 может быть доступен как `[mcu]` по своему UUID (проверьте `canbus_query`).
+
+**Kalico menuconfig (Monster8 V2.0):**
 - MCU: STM32F407
 - Bootloader offset: **48KiB**
 - Clock: 8 MHz crystal
 - Communication: **USB to CAN bus bridge (USB on PA11/PA12)**
 - CAN speed: **1000000**
 
-```bash
-cd ~/kalico && make clean && make
-# out/klipper.bin → microSD как mks_monster8.bin → перезагрузка платы
-```
+### Вариант B — отдельный USB-CAN (UTOC/U2C) + Monster8 на CAN (как deflord/3def)
 
-## 2. Интерфейс can0 (MainsailOS)
+Адаптер G0B1 даёт `can0` на Pi. Monster8 прошит **CAN bus** (не bridge):
+
+**Kalico menuconfig (Monster8 V2.0):**
+- MCU: STM32F407
+- Bootloader offset: **48KiB**
+- Communication: **CAN bus (on PB8/PB9)** или по разводке платы
+- CAN speed: **1000000**
+
+В `[mcu]` — UUID Monster8 с `MCU=stm32f407xx`.
+
+---
+
+## 2. Пины корпуса Monster8 (только для `[mcu]` = F407)
+
+> PB0/PB1 зарезервированы под CAN в bridge-режиме.
+> PA0 — апп.отсек, PA3 — вытяжка, PA8 — neopixel, nevermore — PA2 (см. `printer.cfg`).
+
+## 3. Интерфейс can0 (MainsailOS)
 
 Файл `/etc/network/interfaces.d/can0`:
 
@@ -44,7 +86,7 @@ sudo ifup can0
 ip -details link show can0
 ```
 
-## 3. Прошивка EBB SB2209 CAN (RP2040)
+## 4. Прошивка EBB SB2209 CAN (RP2040)
 
 **Katapult / Kalico:**
 - MCU: RP2040
@@ -59,29 +101,6 @@ python3 ~/katapult/scripts/flash_can.py -i can0 -f ~/katapult/out/katapult.uf2 -
 python3 ~/katapult/scripts/flash_can.py -i can0 -f ~/kalico/out/klipper.uf2 -u REPLACE_EBB_UUID
 ```
 
-## 4. Получение UUID
-
-```bash
-sudo systemctl stop klipper
-~/klippy-env/bin/python ~/kalico/scripts/canbus_query.py can0
-```
-
-| UUID → секция | Устройство |
-|---------------|------------|
-| `[mcu]` | MKS Monster8 |
-| `[mcu EBBCan]` | EBB SB2209 (голова) |
-| `[mcu cartographer]` | Cartographer |
-
-**Проверка после `FIRMWARE_RESTART`:**
-
-| Секция | Версия прошивки |
-|--------|-----------------|
-| `mcu` | Kalico (та же, что хост) |
-| `EBBCan` | Kalico |
-| `cartographer` | `CARTOGRAPHER x.x.x` |
-
-Если `EBBCan` показывает `CARTOGRAPHER` — UUID перепутан с пробой.
-
 ## 5. Прошивка Cartographer
 
 Отдельный репозиторий `~/cartographer_firmware`. См. https://docs.cartographer3d.com
@@ -94,4 +113,4 @@ sudo systemctl stop klipper
 
 ## 7. Проверка
 
-`FIRMWARE_RESTART`, `QUERY_ENDSTOPS`, `STATUS`
+`FIRMWARE_RESTART`, в логе — правильные `MCU=…` для трёх секций, затем `QUERY_ENDSTOPS`, `STATUS`.
