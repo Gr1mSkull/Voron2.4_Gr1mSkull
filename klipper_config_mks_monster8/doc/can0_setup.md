@@ -1,38 +1,29 @@
-# CAN bus — MKS Monster8 V2.0 USB-to-CAN bridge @ 1000000 + Raspberry Pi 4B (MainsailOS 3.0)
+# CAN bus — MKS Monster8 V2.0 + RPi 4B (Kalico @ 1000000)
 
-> RPi 4B не имеет CAN-контроллера. Мост (bridge) поднимает плата Monster8 V2.0
-> (встроенный CAN-трансивер): по USB она выглядит для RPi как CAN-адаптер,
-> и EBB SB2209 виден на той же шине.
+> Прошивки MCU собирайте из **~/kalico**, не из ~/klipper.
+> Установка Kalico и плагина Cartographer: `doc/kalico_setup.md`
 
-## 1. Прошивка Monster8 (Klipper в режиме bridge)
+## 1. Прошивка Monster8 (Kalico, режим USB-to-CAN bridge)
 
 ```bash
 sudo systemctl stop klipper
-cd ~/klipper
+cd ~/kalico
 make menuconfig
 ```
 
-**Klipper (Monster8 V2.0):**
+**Kalico (Monster8 V2.0):**
 - MCU: STM32F407
 - Bootloader offset: **48KiB**
 - Clock: 8 MHz crystal
 - Communication: **USB to CAN bus bridge (USB on PA11/PA12)**
-- CAN bus: пины согласно документации Monster8 V2.0 (для STM32F407 обычно PD0/PD1 или PB8/PB9 — **проверьте**)
 - CAN speed: **1000000**
 
-Прошивка Monster8 выполняется через SD/U-диск (DFU тоже доступен):
-
 ```bash
-cd ~/klipper && make clean && make
-# Скопируйте out/klipper.bin на microSD как mks_monster8.bin,
-# вставьте карту и перезагрузите плату (файл перезапишется в *.CUR).
+cd ~/kalico && make clean && make
+# out/klipper.bin → microSD как mks_monster8.bin → перезагрузка платы
 ```
 
-> ⚠ Имя файла должно быть строго `mks_monster8.bin`. Если плата уже
-> прошита, при следующем обновлении используйте новое имя или удалите
-> старый `*.CUR` с карты.
-
-## 2. Интерфейс can0 на Raspberry Pi 4B (MainsailOS 3.0)
+## 2. Интерфейс can0 (MainsailOS)
 
 Файл `/etc/network/interfaces.d/can0`:
 
@@ -50,37 +41,52 @@ ip -details link show can0
 
 ## 3. Прошивка EBB SB2209 CAN (RP2040)
 
-**Katapult / Klipper:**
+**Katapult / Kalico:**
 - MCU: RP2040
 - Communication: **CAN bus (gpio4/gpio5)**
 - CAN speed: **1000000**
-
-Прошивка через CAN после настройки can0:
+- Bootloader offset: **16KiB** (Katapult)
 
 ```bash
 sudo systemctl stop klipper
+cd ~/kalico && make clean && make
 python3 ~/katapult/scripts/flash_can.py -i can0 -f ~/katapult/out/katapult.uf2 -u REPLACE_EBB_UUID
-python3 ~/katapult/scripts/flash_can.py -i can0 -f ~/klipper/out/klipper.uf2 -u REPLACE_EBB_UUID
+python3 ~/katapult/scripts/flash_can.py -i can0 -f ~/kalico/out/klipper.uf2 -u REPLACE_EBB_UUID
 ```
 
 ## 4. Получение UUID
 
 ```bash
 sudo systemctl stop klipper
-python3 ~/katapult/scripts/flash_can.py -q
-sudo systemctl start klipper
+~/klippy-env/bin/python ~/kalico/scripts/canbus_query.py can0
 ```
 
-Запишите UUID в `mcu.cfg`:
-- Monster8 (bridge) → `[mcu] canbus_uuid`
-- EBB → `[mcu EBBCan] canbus_uuid`
+| UUID → секция | Устройство |
+|---------------|------------|
+| `[mcu]` | MKS Monster8 |
+| `[mcu EBBCan]` | EBB SB2209 (голова) |
+| `[mcu cartographer]` | Cartographer |
 
-## 5. Терминаторы 120 Ω
+**Проверка после `FIRMWARE_RESTART`:**
 
-- Терминатор CAN на Monster8 V2.0 (джампер/резистор, если плата — конец шины)
-- Джампер 120R на EBB SB2209
-- Cartographer на CAN — свой терминатор только если он конец шины
+| Секция | Версия прошивки |
+|--------|-----------------|
+| `mcu` | Kalico (та же, что хост) |
+| `EBBCan` | Kalico |
+| `cartographer` | `CARTOGRAPHER x.x.x` |
 
-## 6. Проверка
+Если `EBBCan` показывает `CARTOGRAPHER` — UUID перепутан с пробой.
 
-В консоли Klipper: `FIRMWARE_RESTART`, `QUERY_ENDSTOPS`, `STATUS`
+## 5. Прошивка Cartographer
+
+Отдельный репозиторий `~/cartographer_firmware`. См. https://docs.cartographer3d.com
+
+## 6. Терминаторы 120 Ω
+
+- Monster8 (если конец шины)
+- EBB SB2209 (джампер 120R)
+- Cartographer (если конец шины)
+
+## 7. Проверка
+
+`FIRMWARE_RESTART`, `QUERY_ENDSTOPS`, `STATUS`
