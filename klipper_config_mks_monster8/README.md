@@ -2,6 +2,8 @@
 
 **Сборка:** 500×500×480 | MKS Monster8 | EBB SB2209 CAN | Stealthburner | **Cartographer 3D** (без Tap)
 
+**Эталон платы** (тот же производитель, MKS Monster8 V2, 500): [deflord/3def SB2040V3/500](https://github.com/deflord/3def/tree/main/Конфигурационные%20файлы/MKS%208V2/SB2040V3/500) — совпадают пины корпуса/стола; у нас EBB SB2209 вместо SB2040 и Cartographer вместо Klicky.
+
 > **Прошивка хоста: [Kalico](https://docs.kalico.gg)** — форк Klipper.
 > Плагин: [cartographer3d-plugin](https://docs.cartographer3d.com)
 

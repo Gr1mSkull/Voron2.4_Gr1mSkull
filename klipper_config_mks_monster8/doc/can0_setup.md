@@ -6,7 +6,9 @@
 ## 1. Прошивка Monster8 (Kalico, режим USB-to-CAN bridge)
 
 > В этом режиме **PB0 и PB1 зарезервированы под CAN** (разъёмы HE0/HE1).
-> Вентилятор контроллера в `fans/fans.cfg` — **FAN1 (PA1)**, не HE1.
+> Распиновка корпуса как в [эталоне deflord/3def](https://github.com/deflord/3def/tree/main/Конфигурационные%20файлы/MKS%208V2/SB2040V3/500):
+> PA0 — вентилятор аппаратного отсека, PA3 — вытяжка, PA8 — neopixel подсветка.
+> Nevermore в эталоне на PB0 (HE1) — в CAN-режиме перенесён на **PA2 (FAN0)**.
 
 ```bash
 sudo systemctl stop klipper
