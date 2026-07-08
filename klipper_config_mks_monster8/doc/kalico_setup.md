@@ -56,9 +56,29 @@ primary_branch: main
 ## 3. Чего НЕ должно быть в конфиге
 
 - Секция `[probe]` с `pin` — Cartographer даёт `probe:z_virtual_endstop`
-- Секция `[scanner]` — устаревший плагин
+- Секция `[scanner]` — устаревший плагин (удалите из SAVE_CONFIG внизу `printer.cfg`)
 - `PROBE_CALIBRATE` / `CARTOGRAPHER_TOUCH` — используйте `CARTOGRAPHER_TOUCH_HOME`
 - `restart_method` в `[mcu cartographer]` при подключении по CAN
+
+### Ошибка `Unknown pin chip name 'probe'`
+
+1. Установите **новый** плагин (не `cartographer-klipper` / `scanner`):
+
+```bash
+curl -s -L https://raw.githubusercontent.com/Cartographer3D/cartographer3d-plugin/refs/heads/main/scripts/install.sh \
+  | bash -s -- --klipper ~/kalico --klippy-env ~/klippy-env
+```
+
+2. Проверьте установку:
+
+```bash
+ls -la ~/kalico/klippy/extras/cartographer.py
+~/klippy-env/bin/python -c "import cartographer; print(cartographer.__version__)"
+```
+
+3. В `printer.cfg` секции Cartographer (`probes/cartographer.cfg`, `bed_mesh/...`) должны подключаться **до** `steppers/steppers_z.cfg` — в этом репозитории они идут сразу после `mcu.cfg`.
+
+4. Удалите из SAVE_CONFIG устаревшие `[scanner]` и дубли `[stepper_z]`.
 
 ## 4. Калибровка Cartographer
 
