@@ -19,12 +19,55 @@ sudo systemctl stop klipper
 
 ### Ошибка `Pin 'gpio20' is not a valid pin name on mcu 'EBBCan'`
 
-Пины `gpio18`, `gpio20`… работают только на **EBB SB2209 RP2040**.
+Пины `gpio18`, `gpio20`… работают **только** если в логе:
 
-1. В логе смотрите `MCU 'EBBCan' config: MCU=…`
-2. Если **`stm32g0b1`** — UUID перепутан (часто попадает UTOC вместо EBB). Исправьте UUID.
-3. Если **`rp2040`**, но gpio не принимаются — перепрошейте EBB из `~/kalico` (RP2040, CAN gpio4/5 @ 1M).
-4. Если плата **STM32G0** (не RP2040) — в `printer.cfg` блок B пинов (`PA15`, `PD0`…).
+```
+MCU 'EBBCan' config: MCU=rp2040
+```
+
+Если `mcu` уже `stm32f407xx`, а EBB падает на `gpio20` — почти всегда **неверный UUID в `[mcu EBBCan]`**.
+
+#### Шаг 1 — UUID на шине
+
+```bash
+sudo systemctl stop klipper
+~/klippy-env/bin/python ~/kalico/scripts/canbus_query.py can0
+sudo systemctl start klipper
+```
+
+Типичный вывод (3 устройства):
+
+```
+Found canbus_uuid=xxxxxxxx, Application: Klipper   ← Monster8 → [mcu]
+Found canbus_uuid=yyyyyyyy, Application: Klipper   ← EBB RP2040 → [mcu EBBCan]
+Found canbus_uuid=zzzzzzzz, Application: Klipper   ← Cartographer → [mcu cartographer]
+```
+
+> Если EBB **не в списке** — питание 24V на голову, CAN-кабель, джампер 120Ω на EBB, прошивка Katapult/Klipper на EBB.
+
+#### Шаг 2 — что пишет лог для EBBCan
+
+| `MCU 'EBBCan' config:` | Причина | Действие |
+|------------------------|---------|----------|
+| `MCU=rp2040` | Редко: прошивка не Kalico RP2040 | Перепрошить EBB из `~/kalico` (§4) |
+| `MCU=stm32g0b1xx` | UUID от UTOC/U2C или чужой G0 | Поставить UUID **EBB** из `canbus_query` |
+| `MCU=stm32f407xx CANBUS_BRIDGE=1` | В EBB слот попал UUID Monster8 | Поменять UUID местами с `[mcu]` |
+| `MCU=… CARTOGRAPHER` | UUID Cartographer в EBB | Cartographer → `[mcu cartographer]` |
+| Нет строки / timeout | EBB не на шине | Питание, CAN, прошивка |
+
+#### Шаг 3 — если EBB реально STM32G0 (не RP2040)
+
+В `printer.cfg` закомментируйте **блок A** (gpio*) и раскомментируйте **блок B** (`PA15`, `PD0`…) — extruder, fans, `endstop_pin` X.
+
+#### Шаг 4 — проверка
+
+`FIRMWARE_RESTART` → в логе три строки:
+
+```
+MCU 'mcu' config: MCU=stm32f407xx
+MCU 'EBBCan' config: MCU=rp2040
+MCU 'cartographer' config: … CARTOGRAPHER …
+```
 
 | `[mcu cartographer]` | `CARTOGRAPHER` | `stm32f407`, `rp2040` |
 
