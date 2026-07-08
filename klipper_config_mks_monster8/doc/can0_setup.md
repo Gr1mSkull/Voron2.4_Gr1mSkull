@@ -5,6 +5,9 @@
 
 ## 1. Прошивка Monster8 (Kalico, режим USB-to-CAN bridge)
 
+> В этом режиме **PB0 и PB1 зарезервированы под CAN** (разъёмы HE0/HE1).
+> Вентилятор контроллера в `fans/fans.cfg` — **FAN1 (PA1)**, не HE1.
+
 ```bash
 sudo systemctl stop klipper
 cd ~/kalico
