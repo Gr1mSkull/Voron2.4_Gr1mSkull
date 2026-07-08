@@ -2,7 +2,7 @@
 
 **Сборка:** 500×500×480 | MKS Monster8 | EBB SB2209 CAN | Stealthburner | **Cartographer 3D** (без Tap)
 
-> **Прошивка хоста: [Kalico](https://docs.kalico.gg)** — форк Klipper, не mainline.
+> **Прошивка хоста: [Kalico](https://docs.kalico.gg)** — форк Klipper.
 > Плагин: [cartographer3d-plugin](https://docs.cartographer3d.com)
 
 ## Установка
