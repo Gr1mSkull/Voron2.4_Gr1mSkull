@@ -10,13 +10,17 @@
 ## Установка
 
 ```bash
-cp -r klipper_config_mks_monster8/* ~/printer_data/config/
+cp klipper_config_mks_monster8/printer.cfg ~/printer_data/config/
+# документация (опционально):
+cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 ```
 
 1. Установите Kalico — `doc/kalico_setup.md`
 2. Установите плагин Cartographer (путь `~/kalico`)
-3. Пропишите CAN UUID в `mcu.cfg` и `probes/cartographer.cfg`
+3. Пропишите CAN UUID в начале `printer.cfg` (секции `[mcu]`, `[mcu EBBCan]`, `[mcu cartographer]`)
 4. `FIRMWARE_RESTART`
+
+Весь конфиг — **один файл** `printer.cfg`. Переключатели (физические/sensorless концевики, AWD, Voron Tap) — закомментированные блоки внутри файла.
 
 ## Калибровка
 
@@ -47,14 +51,11 @@ PRINT_END
 
 ```
 klipper_config_mks_monster8/
-├── printer.cfg
-├── doc/
-│   ├── kalico_setup.md
-│   ├── can0_setup.md
-│   └── slicer_gcode.md    ← Orca + Bambu Studio
-├── probes/cartographer.cfg
-├── macros/macros.cfg      ← PRINT_START с CARTOGRAPHER_TOUCH_HOME
-└── ...
+├── printer.cfg            ← весь конфиг (единый файл)
+└── doc/
+    ├── kalico_setup.md
+    ├── can0_setup.md
+    └── slicer_gcode.md
 ```
 
 ## Макросы

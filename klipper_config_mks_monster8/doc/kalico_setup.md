@@ -76,7 +76,7 @@ ls -la ~/kalico/klippy/extras/cartographer.py
 ~/klippy-env/bin/python -c "import cartographer; print(cartographer.__version__)"
 ```
 
-3. В `printer.cfg` секции Cartographer (`probes/cartographer.cfg`, `bed_mesh/...`) должны подключаться **до** `steppers/steppers_z.cfg` — в этом репозитории они идут сразу после `mcu.cfg`.
+3. В `printer.cfg` секции Cartographer должны быть **выше** `[stepper_z]` — в едином файле они идут сразу после `[mcu]`.
 
 4. Удалите из SAVE_CONFIG устаревшие `[scanner]` и дубли `[stepper_z]`.
 
@@ -91,8 +91,8 @@ ls -la ~/kalico/klippy/extras/cartographer.py
 
 ## 5. Особенности Kalico
 
-- `[respond]`, `[exclude_object]`, `[force_move]` включены по умолчанию — в `printer_base.cfg` не дублируем
-- `SAVE_CONFIG` может обновлять included-файлы без полного рестарта (см. docs.kalico.gg)
+- `[respond]`, `[exclude_object]`, `[force_move]` включены по умолчанию — не дублируйте в `printer.cfg`
+- `SAVE_CONFIG` дописывает калибровку в конец `printer.cfg` (см. docs.kalico.gg)
 - `RELOAD_GCODE_MACROS` — перезагрузка макросов без `FIRMWARE_RESTART`
 
 ## 6. CAN
