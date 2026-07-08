@@ -71,7 +71,50 @@ MCU 'cartographer' config: … CARTOGRAPHER …
 
 | `[mcu cartographer]` | `CARTOGRAPHER` | `stm32f407`, `rp2040` |
 
-### Типичная ошибка (как в вашем логе)
+### Ошибка `MCU Protocol error` / `Unknown command: tmcuart_send` на EBBCan
+
+Kalico на Pi **не совместим** с прошивкой mainline Klipper на MCU. Плюс UUID могут быть перепутаны.
+
+#### Как читать сообщение об ошибке
+
+Строка `MCU(s) which should be updated` — **какая прошивка сейчас на каком слоте** в `printer.cfg`:
+
+| Слот в printer.cfg | Версия в ошибке | Что это за плата | Куда UUID |
+|--------------------|-----------------|------------------|-----------|
+| `mcu` | `v0.12.0-…` (Klipper) | Monster8 F407 | UUID Monster8 → `[mcu]` |
+| `EBBCan` | `CARTOGRAPHER 5.0.0` | **Cartographer** (перепутан!) | UUID Cartographer → `[mcu cartographer]` |
+| `cartographer` | `v0.12.0-…` (Klipper) | **EBB RP2040** (перепутан!) | UUID EBB → `[mcu EBBCan]` |
+
+Пример вашей ошибки — UUID Cartographer и EBB **поменяны местами**:
+- в `[mcu EBBCan]` стоит UUID Cartographer → `tmcuart_send` неизвестен (у пробы нет TMC)
+- в `[mcu cartographer]` стоит UUID EBB
+
+**Исправление UUID:** верните как было до обмена — EBB UUID в `[mcu EBBCan]`, Cartographer UUID в `[mcu cartographer]`.
+
+#### Прошивки под Kalico
+
+После правки UUID всё равно нужно перепрошить **Monster8** и **EBB** из `~/kalico` (не из `~/klipper`):
+
+| Слот | Нужная прошивка | Откуда |
+|------|-----------------|--------|
+| `[mcu]` | Kalico, STM32F407 | `~/kalico` (§1) |
+| `[mcu EBBCan]` | Kalico, RP2040 CAN | `~/kalico` (§4) |
+| `[mcu cartographer]` | **CARTOGRAPHER** (своя) | `~/cartographer_firmware` — **не Kalico** |
+
+Cartographer **не** прошивается Kalico — в слоте `cartographer` версия `CARTOGRAPHER x.x.x` это нормально.
+
+```bash
+# Monster8 + EBB — сборка из Kalico
+cd ~/kalico && make menuconfig   # F407 bridge или CAN — см. §1
+make clean && make
+# прошивка по CAN/USB — см. §1 и §4
+
+# Cartographer — отдельно
+# https://docs.cartographer3d.com/cartographer-probe/firmware
+```
+
+После прошивки `FIRMWARE_RESTART` — в логе **нет** `MCU Protocol error`, версии MCU совпадают с Kalico (кроме cartographer).
+
 
 ```
 MCU 'mcu' config: MCU=stm32g0b1xx        ← в [mcu] UUID от UTOC/U2C (G0B1)
