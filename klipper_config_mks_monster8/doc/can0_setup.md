@@ -182,9 +182,11 @@ sudo ifup can0
 ip -details link show can0
 ```
 
-## 4. Прошивка EBB SB2209 CAN (RP2040)
+## 4. Прошивка EBB по CAN
 
-**Katapult / Kalico:**
+### Вариант A — EBB SB2209 / SB2040 **RP2040** (пины `gpio*`)
+
+**Kalico menuconfig:**
 - MCU: RP2040
 - Communication: **CAN bus (gpio4/gpio5)**
 - CAN speed: **1000000**
@@ -196,6 +198,29 @@ cd ~/kalico && make clean && make
 python3 ~/katapult/scripts/flash_can.py -i can0 -f ~/katapult/out/katapult.uf2 -u REPLACE_EBB_UUID
 python3 ~/katapult/scripts/flash_can.py -i can0 -f ~/kalico/out/klipper.uf2 -u REPLACE_EBB_UUID
 ```
+
+В `printer.cfg` — **блок A** пинов (`gpio18`, `gpio20`, …).
+
+### Вариант B — EBB **STM32G0B1** (пины `PA*` / `PD*` / `PB*`)
+
+На плате чип **STM32G0**, не RP2040. В логе: `MCU 'EBBCan' config: MCU=stm32g0b1xx`.
+
+**Kalico menuconfig:**
+- MCU: STM32G0B1
+- Clock: 8 MHz crystal
+- Communication: **CAN bus (on PD0/PD1)** или по silkscreen платы
+- CAN speed: **1000000**
+- Bootloader offset: **8KiB** (Katapult)
+
+```bash
+sudo systemctl stop klipper
+cd ~/kalico
+make menuconfig   # STM32G0B1 + CAN @ 1M
+make clean && make
+python3 ~/katapult/scripts/flash_can.py -i can0 -f ~/kalico/out/klipper.bin -u REPLACE_EBB_UUID
+```
+
+В `printer.cfg` — **блок B** пинов (`PD0`, `PA15`, `PC13` endstop X, …) — **активен по умолчанию** в этом репозитории.
 
 ## 5. Прошивка Cartographer
 
