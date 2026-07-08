@@ -15,7 +15,17 @@ sudo systemctl stop klipper
 | Секция в printer.cfg | Должно быть в логе | НЕ должно быть |
 |----------------------|-------------------|----------------|
 | `[mcu]` | `MCU=stm32f407xx` | `stm32g0b1xx`, `rp2040`, `CARTOGRAPHER` |
-| `[mcu EBBCan]` | `MCU=rp2040` (Kalico) | `stm32f407xx`, `CANBUS_BRIDGE=1`, `CARTOGRAPHER` |
+| `[mcu EBBCan]` | `MCU=rp2040` (Kalico) | `stm32g0b1`, `stm32f407`, `CANBUS_BRIDGE=1` |
+
+### Ошибка `Pin 'gpio20' is not a valid pin name on mcu 'EBBCan'`
+
+Пины `gpio18`, `gpio20`… работают только на **EBB SB2209 RP2040**.
+
+1. В логе смотрите `MCU 'EBBCan' config: MCU=…`
+2. Если **`stm32g0b1`** — UUID перепутан (часто попадает UTOC вместо EBB). Исправьте UUID.
+3. Если **`rp2040`**, но gpio не принимаются — перепрошейте EBB из `~/kalico` (RP2040, CAN gpio4/5 @ 1M).
+4. Если плата **STM32G0** (не RP2040) — в `printer.cfg` блок B пинов (`PA15`, `PD0`…).
+
 | `[mcu cartographer]` | `CARTOGRAPHER` | `stm32f407`, `rp2040` |
 
 ### Типичная ошибка (как в вашем логе)
