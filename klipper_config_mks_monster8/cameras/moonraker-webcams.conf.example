@@ -1,0 +1,29 @@
+#####################################################################
+# Webcams для Mainsail — добавить в moonraker.conf или:
+#   [include moonraker-webcams.conf]
+# Файл: ~/printer_data/config/moonraker-webcams.conf
+#
+# Требует Crowsnest с портами 8080 и 8081 (см. crowsnest.conf.example)
+#####################################################################
+
+[webcam chamber]
+location: chamber
+service: crowsnest
+enabled: true
+target_fps: 15
+stream_url: /webcam/?action=stream
+snapshot_url: /webcam/?action=snapshot
+flip_horizontal: false
+flip_vertical: false
+rotation: 0
+
+[webcam nozzle]
+location: nozzle
+service: crowsnest
+enabled: true
+target_fps: 15
+stream_url: /webcam2/?action=stream
+snapshot_url: /webcam2/?action=snapshot
+flip_horizontal: false
+flip_vertical: false
+rotation: 0

@@ -22,6 +22,8 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 
 Весь конфиг — **один файл** `printer.cfg`. XY — **2WD sensorless** (TMC StallGuard). Z — Cartographer 3D (scan + touch). EBB — **STM32G0** (пины `PA*` / `PD*` / `PB*`).
 
+**Камеры (2× USB):** `doc/cameras_setup.md` + шаблоны в `cameras/`.
+
 ## Калибровка
 
 Полный пошаговый алгоритм: **`doc/calibration.md`** (sensorless XY, Cartographer, QGL, Input Shaper, PID, слайсер, первая печать).

@@ -1,0 +1,41 @@
+#### crowsnest.conf — Voron 2.4 Gr1mSkull (2× USB camera)
+#### Скопировать: ~/printer_data/config/crowsnest.conf
+#### Замените device: на вывод `ls /dev/v4l/by-id/`
+
+[crowsnest]
+log_path: %LOGPATH%
+log_level: verbose
+delete_log: false
+no_proxy: false
+
+#####################################################################
+# Камера 1 — обзор корпуса (GEMBIRD UVC, 1908:2311)
+# Mainsail: /webcam/?action=stream
+#####################################################################
+
+[cam chamber]
+mode: camera-streamer
+# mode: ustreamer
+port: 8080
+# ↓↓↓ ЗАМЕНИТЬ на ваш путь from-id ↓↓↓
+device: /dev/v4l/by-id/usb-GEMBIRD_Generic_UVC__usb-xxx-video-index0
+resolution: 1280x720
+max_fps: 15
+#custom_flags:
+#v4l2ctl:
+
+#####################################################################
+# Камера 2 — сопло / деталь (CameraWN.AHD, 1817:1130)
+# Mainsail: /webcam2/?action=stream
+#####################################################################
+
+[cam nozzle]
+mode: camera-streamer
+# mode: ustreamer
+port: 8081
+# ↓↓↓ ЗАМЕНИТЬ на ваш путь by-id ↓↓↓
+device: /dev/v4l/by-id/usb-CameraWN.AHD_ForwardRGB_xxx-video-index0
+resolution: 1280x720
+max_fps: 15
+#custom_flags:
+#v4l2ctl: focus_auto=0
