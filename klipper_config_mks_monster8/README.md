@@ -12,9 +12,10 @@ cp -r klipper_config_mks_monster8/* ~/printer_data/config/
 ```
 
 1. Установите Kalico — `doc/kalico_setup.md`
-2. Установите плагин Cartographer (путь `~/kalico`)
-3. Пропишите CAN UUID в `mcu.cfg` и `probes/cartographer.cfg`
-4. `FIRMWARE_RESTART`
+2. Прошейте Monster8 через Katapult — `doc/katapult_flash_from_scratch.md` (или `doc/can0_setup.md`)
+3. Установите плагин Cartographer (путь `~/kalico`)
+4. Пропишите CAN UUID в `mcu.cfg` и `probes/cartographer.cfg`
+5. `FIRMWARE_RESTART`
 
 ## Калибровка
 
@@ -48,6 +49,7 @@ klipper_config_mks_monster8/
 ├── printer.cfg
 ├── doc/
 │   ├── kalico_setup.md
+│   ├── katapult_flash_from_scratch.md  ← прошивка Monster8 с нуля (Katapult)
 │   ├── can0_setup.md
 │   └── slicer_gcode.md    ← Orca + Bambu Studio
 ├── probes/cartographer.cfg
