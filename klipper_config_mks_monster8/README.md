@@ -27,8 +27,8 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 | Шаг | Команда |
 |-----|---------|
 | 1 | `G28 X Y` |
-| 2 | `G32` или `QUAD_GANTRY_LEVEL` + `G28 Z` |
-| 3 | `CARTOGRAPHER_SCAN_CALIBRATE` → `SAVE_CONFIG` |
+| 2 | **`CARTOGRAPHER_SCAN_CALIBRATE`** → `SAVE_CONFIG` (иначе G28 Z: *Scan model not loaded*) |
+| 3 | `G28 Z` → `QUAD_GANTRY_LEVEL` → `G28 Z` |
 | 4 | `CARTOGRAPHER_TOUCH_CALIBRATE` → `SAVE_CONFIG` |
 | 5 | `SHAPER_CALIBRATE` → `SAVE_CONFIG` |
 | 6 | PID сопла и стола |

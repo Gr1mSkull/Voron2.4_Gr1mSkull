@@ -82,12 +82,17 @@ ls -la ~/kalico/klippy/extras/cartographer.py
 
 ## 4. Калибровка Cartographer
 
+> **Ошибка `Scan model not loaded` на G28 Z** — модель ещё не создана. Сначала шаг 2.
+
 1. `FIRMWARE_RESTART`
-2. `G28` или `G28 X Y` — портал сначала поднимается на 15 мм, затем homing XY
-3. `QUAD_GANTRY_LEVEL` → `G28 Z`
-4. `CARTOGRAPHER_SCAN_CALIBRATE` → `SAVE_CONFIG`
-5. `CARTOGRAPHER_TOUCH_CALIBRATE` → `SAVE_CONFIG`
-6. `SHAPER_CALIBRATE` → `SAVE_CONFIG`
+2. `G28 X Y` — XY отхоумлены
+3. **`CARTOGRAPHER_SCAN_CALIBRATE`** → paper test (`TESTZ Z=-0.01`) → `ACCEPT` → **`SAVE_CONFIG`**
+4. `G28 Z` — теперь Z homing через scan-модель
+5. `QUAD_GANTRY_LEVEL` → `G28 Z`
+6. `CARTOGRAPHER_TOUCH_CALIBRATE` → **`SAVE_CONFIG`**
+7. `SHAPER_CALIBRATE` → `SAVE_CONFIG`
+
+Макрос-подсказка: `CARTO_CALIBRATE`
 
 ## 5. Особенности Kalico
 
