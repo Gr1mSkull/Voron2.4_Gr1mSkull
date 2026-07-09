@@ -1,6 +1,6 @@
 # Voron 2.4 — Kalico Configuration (MKS Monster8 V2.0 + RPi 4B)
 
-**Сборка:** 500×500×480 | MKS Monster8 | EBB SB2209 CAN | Stealthburner | **Cartographer 3D** (без Tap)
+**Сборка:** 500×500×480 | MKS Monster8 | EBB SB2209 CAN (STM32G0) | Stealthburner | **Cartographer 3D**
 
 **Эталон платы** (тот же производитель, MKS Monster8 V2, 500): [deflord/3def SB2040V3/500](https://github.com/deflord/3def/tree/main/Конфигурационные%20файлы/MKS%208V2/SB2040V3/500) — совпадают пины корпуса/стола; у нас EBB SB2209 вместо SB2040 и Cartographer вместо Klicky.
 
@@ -20,7 +20,7 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 3. Пропишите CAN UUID в начале `printer.cfg` (секции `[mcu]`, `[mcu EBBCan]`, `[mcu cartographer]`)
 4. `FIRMWARE_RESTART`
 
-Весь конфиг — **один файл** `printer.cfg`. XY — только **sensorless** (TMC StallGuard). Опционально: AWD, Voron Tap — закомментированные блоки.
+Весь конфиг — **один файл** `printer.cfg`. XY — **2WD sensorless** (TMC StallGuard). Z — Cartographer 3D (scan + touch). EBB — **STM32G0** (пины `PA*` / `PD*` / `PB*`).
 
 ## Калибровка
 
