@@ -250,7 +250,7 @@ curl -s http://127.0.0.1:7125/server/webcams/list | python3 -m json.tool
 | Высокая нагрузка на Pi | `resolution: 1280x720` → `640x480`, `max_fps: 10` |
 | Одна камера работает | Уникальный `port` (8080 / 8081), разные `device` |
 | Нет службы crowsnest | `KIAUH` → установить Crowsnest |
-| USB отваливается | Питание Pi / хаб — камеры лучше в порты Pi напрямую |
+| Crowsnest OK, Mainsail пусто | `curl …/server/webcams/list` → добавить `moonraker-webcams.conf` + `[include]` |
 
 ### Поворот / зеркало
 

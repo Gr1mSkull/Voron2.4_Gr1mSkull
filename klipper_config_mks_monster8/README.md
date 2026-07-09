@@ -58,10 +58,12 @@ PRINT_END
 ```
 klipper_config_mks_monster8/
 ├── printer.cfg            ← весь конфиг (единый файл)
+├── cameras/               ← шаблоны crowsnest + moonraker
 └── doc/
     ├── kalico_setup.md
     ├── can0_setup.md
     ├── calibration.md
+    ├── cameras_setup.md
     └── slicer_gcode.md
 ```
 
