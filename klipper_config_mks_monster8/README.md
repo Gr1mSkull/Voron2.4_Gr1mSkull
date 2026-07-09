@@ -24,6 +24,10 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 
 ## Калибровка
 
+Полный пошаговый алгоритм: **`doc/calibration.md`** (sensorless XY, Cartographer, QGL, Input Shaper, PID, слайсер, первая печать).
+
+Кратко:
+
 | Шаг | Команда |
 |-----|---------|
 | 1 | `G28 X Y` |
@@ -55,6 +59,7 @@ klipper_config_mks_monster8/
 └── doc/
     ├── kalico_setup.md
     ├── can0_setup.md
+    ├── calibration.md
     └── slicer_gcode.md
 ```
 
