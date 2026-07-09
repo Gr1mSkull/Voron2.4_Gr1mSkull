@@ -145,6 +145,7 @@ sudo systemctl restart moonraker
 
 | Симптом | Решение |
 |---------|---------|
+| `InterpolationSyntaxError: '%LOGPATH%'` | Python 3.13: `log_path: %%LOGPATH%%` (двойной `%`) |
 | Чёрный экран | Неверный `/dev/video*` — используйте `by-id`, проверьте `v4l2-ctl --list-devices` |
 | Камеры поменялись местами | Поменяйте `device:` в `crowsnest.conf` |
 | Высокая нагрузка на Pi | `resolution: 1280x720` → `640x480`, `max_fps: 10` |

@@ -3,7 +3,7 @@
 #### Замените device: на вывод `ls /dev/v4l/by-id/`
 
 [crowsnest]
-log_path: %LOGPATH%
+log_path: %%LOGPATH%%
 log_level: verbose
 delete_log: false
 no_proxy: false
@@ -32,8 +32,7 @@ max_fps: 15
 mode: camera-streamer
 # mode: ustreamer
 port: 8081
-# ↓↓↓ ЗАМЕНИТЬ на ваш путь by-id ↓↓↓
-device: /dev/v4l/by-id/usb-CameraWN.AHD_ForwardRGB_xxx-video-index0
+device: /dev/v4l/by-id/usb-CameraWN.AHD_ForwardRGB-video-index0
 resolution: 1280x720
 max_fps: 15
 #custom_flags:
