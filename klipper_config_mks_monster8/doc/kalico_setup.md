@@ -83,7 +83,7 @@ ls -la ~/kalico/klippy/extras/cartographer.py
 ## 4. Калибровка Cartographer
 
 1. `FIRMWARE_RESTART`
-2. `G28 X Y`
+2. `G28` или `G28 X Y` — портал сначала поднимается на 15 мм, затем homing XY
 3. `QUAD_GANTRY_LEVEL` → `G28 Z`
 4. `CARTOGRAPHER_SCAN_CALIBRATE` → `SAVE_CONFIG`
 5. `CARTOGRAPHER_TOUCH_CALIBRATE` → `SAVE_CONFIG`
