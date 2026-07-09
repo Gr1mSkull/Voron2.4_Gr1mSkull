@@ -20,7 +20,7 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 3. Пропишите CAN UUID в начале `printer.cfg` (секции `[mcu]`, `[mcu EBBCan]`, `[mcu cartographer]`)
 4. `FIRMWARE_RESTART`
 
-Весь конфиг — **один файл** `printer.cfg`. Переключатели (физические/sensorless концевики, AWD, Voron Tap) — закомментированные блоки внутри файла.
+Весь конфиг — **один файл** `printer.cfg`. XY — только **sensorless** (TMC StallGuard). Опционально: AWD, Voron Tap — закомментированные блоки.
 
 ## Калибровка
 
