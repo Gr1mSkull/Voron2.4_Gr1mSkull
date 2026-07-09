@@ -141,6 +141,105 @@ sudo systemctl restart moonraker
 
 ---
 
+## 4.1 Crowsnest OK, но в Mainsail пусто
+
+### Шаг A — потоки в браузере (без Mainsail)
+
+На ПК в браузере откройте (подставьте IP Pi):
+
+```
+http://192.168.x.x/webcam/?action=stream
+http://192.168.x.x/webcam2/?action=stream
+```
+
+| Результат | Значение |
+|-----------|----------|
+| Видео есть | Crowsnest + nginx OK → проблема в Moonraker/Mainsail |
+| 404 / пусто | nginx/Crowsnest — проверьте `systemctl status crowsnest` |
+| Запрашивает логин | норма для MainsailOS — войдите в Mainsail, затем откройте URL снова |
+
+На Pi:
+
+```bash
+curl -I http://127.0.0.1/webcam/?action=stream
+curl -I http://127.0.0.1/webcam2/?action=stream
+```
+
+Ожидается `HTTP/1.1 200` или `multipart/x-mixed-replace`.
+
+### Шаг B — видит ли Moonraker камеры
+
+```bash
+curl -s http://127.0.0.1:7125/server/webcams/list | python3 -m json.tool
+```
+
+**Если `"webcams": []` или пусто** — в `moonraker.conf` нет секций webcam.
+
+Создайте файл:
+
+```bash
+nano ~/printer_data/config/moonraker-webcams.conf
+```
+
+Вставьте:
+
+```ini
+[webcam chamber]
+location: chamber
+service: crowsnest
+enabled: true
+stream_url: /webcam/?action=stream
+snapshot_url: /webcam/?action=snapshot
+
+[webcam nozzle]
+location: nozzle
+service: crowsnest
+enabled: true
+stream_url: /webcam2/?action=stream
+snapshot_url: /webcam2/?action=snapshot
+```
+
+В **`~/printer_data/config/moonraker.conf`** в конец добавьте (если ещё нет):
+
+```ini
+[include moonraker-webcams.conf]
+```
+
+```bash
+sudo systemctl restart moonraker
+curl -s http://127.0.0.1:7125/server/webcams/list | python3 -m json.tool
+```
+
+Должны быть **chamber** и **nozzle**.
+
+### Шаг C — Mainsail
+
+1. Жёсткое обновление страницы: **Ctrl+Shift+R**
+2. **Настройки → Камеры (Webcams)** — включите отображение на дашборде
+3. Если список пуст — **Добавить камеру** вручную:
+
+| Поле | Chamber | Nozzle |
+|------|---------|--------|
+| Имя | chamber | nozzle |
+| Stream URL | `/webcam/?action=stream` | `/webcam2/?action=stream` |
+| Snapshot URL | `/webcam/?action=snapshot` | `/webcam2/?action=snapshot` |
+| Тип / Service | crowsnest или MJPEG | то же |
+
+4. На дашборде: иконка **камеры** на панели — выбрать активную webcam
+
+### Шаг D — старый конфликт
+
+Удалите или закомментируйте в `moonraker.conf` устаревшие секции:
+
+```ini
+# [webcam]
+# stream_url: ...
+```
+
+Оставьте только `[webcam chamber]` и `[webcam nozzle]` (или include).
+
+---
+
 ## 5. Типичные проблемы
 
 | Симптом | Решение |
