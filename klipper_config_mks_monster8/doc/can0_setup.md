@@ -15,7 +15,7 @@ sudo systemctl stop klipper
 | Секция в printer.cfg | Должно быть в логе | НЕ должно быть |
 |----------------------|-------------------|----------------|
 | `[mcu]` | `MCU=stm32f407xx` | `stm32g0b1xx`, `rp2040`, `CARTOGRAPHER` |
-| `[mcu EBBCan]` | `MCU=rp2040` (Kalico) | `stm32g0b1`, `stm32f407`, `CANBUS_BRIDGE=1` |
+| `[mcu EBBCan]` | `MCU=stm32g0b1xx` (STM32 EBB) или `MCU=rp2040` (RP2040 EBB) | `stm32f407`, `CANBUS_BRIDGE=1`, `CARTOGRAPHER` |
 
 ### Ошибка `Pin 'gpio20' is not a valid pin name on mcu 'EBBCan'`
 
