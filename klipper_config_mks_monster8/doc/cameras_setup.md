@@ -4,8 +4,8 @@
 
 | USB ID | Модель | Роль (предположительно) |
 |--------|--------|-------------------------|
-| `1908:2311` | GEMBIRD UVC (AX2311) | обзор камеры / корпус |
-| `1817:1130` | CameraWN.AHD ForwardRGB | сопло / деталь |
+| `1908:2311` | Generic USB2.0 PC CAMERA | обзор / корпус → `video0` |
+| `1817:1130` | CameraWN.AHD ForwardRGB | сопло → `video2` |
 
 Точные пути устройств нужно взять на **вашем** Pi — см. шаг 1.
 
@@ -120,7 +120,7 @@ http://<IP-принтера>/webcam2/?action=stream
 Добавьте (или включите через `include`):
 
 ```bash
-cat ~/printer_data/config/doc/cameras/moonraker-webcams.conf.example
+cat klipper_config_mks_monster8/cameras/moonraker-webcams.conf.example
 ```
 
 Скопируйте содержимое в конец `moonraker.conf` или:

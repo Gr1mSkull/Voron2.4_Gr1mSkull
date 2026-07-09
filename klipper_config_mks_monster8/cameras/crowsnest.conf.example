@@ -17,8 +17,7 @@ no_proxy: false
 mode: camera-streamer
 # mode: ustreamer
 port: 8080
-# ↓↓↓ ЗАМЕНИТЬ на ваш путь from-id ↓↓↓
-device: /dev/v4l/by-id/usb-GEMBIRD_Generic_UVC__usb-xxx-video-index0
+device: /dev/v4l/by-id/usb-Generic_USB2.0_PC_CAMERA-video-index0
 resolution: 1280x720
 max_fps: 15
 #custom_flags:
