@@ -1,6 +1,6 @@
-#### crowsnest.conf — Voron 2.4 Gr1mSkull (2× USB camera)
+#### crowsnest.conf — Voron 2.4 Gr1mSkull (1× USB camera, обзор корпуса)
 #### Скопировать: ~/printer_data/config/crowsnest.conf
-#### Замените device: на вывод `ls /dev/v4l/by-id/`
+#### Замените device: на вывод: ls -la /dev/v4l/by-id/*-video-index0
 
 [crowsnest]
 log_path: %%LOGPATH%%
@@ -9,31 +9,20 @@ delete_log: false
 no_proxy: false
 
 #####################################################################
-# Камера 1 — обзор корпуса (GEMBIRD UVC, 1908:2311)
+# Камера — обзор корпуса (GEMBIRD / Generic USB2.0 PC CAMERA, 1908:2311)
 # Mainsail: /webcam/?action=stream
 #####################################################################
 
 [cam chamber]
-mode: camera-streamer
-# mode: ustreamer
 port: 8080
 device: /dev/v4l/by-id/usb-Generic_USB2.0_PC_CAMERA-video-index0
 resolution: 1280x720
 max_fps: 15
+# Если чёрный экран — смените mode (см. doc/cameras_setup.md):
+mode: ustreamer
+# mode: camera-streamer
 #custom_flags:
 #v4l2ctl:
 
-#####################################################################
-# Камера 2 — сопло / деталь (CameraWN.AHD, 1817:1130)
-# Mainsail: /webcam2/?action=stream
-#####################################################################
-
-[cam nozzle]
-mode: camera-streamer
-# mode: ustreamer
-port: 8081
-device: /dev/v4l/by-id/usb-CameraWN.AHD_ForwardRGB-video-index0
-resolution: 1280x720
-max_fps: 15
-#custom_flags:
-#v4l2ctl: focus_auto=0
+# Вторую камеру (сопло) НЕ добавляйте, если USB-камеры нет —
+# лишний блок [cam nozzle] ломает Crowsnest или даёт 404 на /webcam2/

@@ -1,242 +1,132 @@
-# Камеры — Voron 2.4 Gr1mSkull (RPi 4B + MainsailOS)
+# Камера — Voron 2.4 Gr1mSkull (1× USB, обзор корпуса)
 
-На Pi у вас две USB-камеры (по `lsusb`):
-
-| USB ID | Модель | Роль (предположительно) |
-|--------|--------|-------------------------|
-| `1908:2311` | Generic USB2.0 PC CAMERA | обзор / корпус → `video0` |
-| `1817:1130` | CameraWN.AHD ForwardRGB | сопло → `video2` |
-
-Точные пути устройств нужно взять на **вашем** Pi — см. шаг 1.
-
-Стек: **Crowsnest** (стрим) + **Moonraker** (описание для Mainsail).
+Одна USB-камера на Raspberry Pi 4B (MainsailOS): **Crowsnest** (стрим) + **Moonraker** (регистрация в Mainsail).
 
 Документация Crowsnest: https://docs.mainsail.xyz/crowsnest/
 
 ---
 
-## 1. Найти камеры на Pi
+## Быстрая установка (на Pi)
 
 ```bash
-# Список устройств (предпочтительно by-id — не меняется при переподключении)
-ls -la /dev/v4l/by-id/
-ls -la /dev/v4l/by-path/
+cd ~/Voron2.4_Gr1mSkull/klipper_config_mks_monster8/cameras   # путь к клону репозитория
+bash install-single-camera.sh
+```
 
-# Подробности по каждой камере
+Скрипт подставит первый `*-video-index0` из `/dev/v4l/by-id/`, скопирует конфиги и перезапустит службы.
+
+---
+
+## 1. Проверить, что Pi видит камеру
+
+```bash
+lsusb
+ls -la /dev/v4l/by-id/*-video-index0
 v4l2-ctl --list-devices
-
-# Возможности (разрешение, fps)
-v4l2-ctl -d /dev/video0 --list-formats-ext
 ```
 
-**Важно:** у одной физической камеры часто **два** `/dev/videoN` (video + metadata).  
-В Crowsnest указывайте узел с **форматом MJPG/YUYV** (обычно `video0`, `video2`…), не `video1` если это metadata.
+**Важно:** у одной USB-камеры часто два узла (`video0` + `video1`). В Crowsnest указывайте только **`*-video-index0`**, не metadata-узел.
 
-Пример вывода `v4l2-ctl --list-devices`:
+Типичная камера корпуса (Gr1mSkull): `1908:2311` Generic USB2.0 PC CAMERA.
+
+Пример пути:
 
 ```
-GEMBIRD USB2.0 Camera (usb-xhci-hcd.0-1.3):
-    /dev/video0
-    /dev/video1   ← часто metadata, не использовать
-
-USB Camera (usb-xhci-hcd.0-1.4):
-    /dev/video2
-    /dev/video3
+/dev/v4l/by-id/usb-Generic_USB2.0_PC_CAMERA-video-index0
 ```
 
-Скопируйте пути **`/dev/v4l/by-id/...-video-index0`** для каждой камеры.
+После отключения камеры с сопла путь **может измениться** — всегда проверяйте `by-id` заново.
 
 ---
 
-## 2. Установить Crowsnest (если ещё нет)
-
-На MainsailOS часто уже установлен. Проверка:
-
-```bash
-systemctl status crowsnest
-ls ~/printer_data/config/crowsnest.conf
-```
-
-Если нет — через **KIAUH** → Crowsnest, или вручную: https://github.com/mainsail-crew/crowsnest
-
-В `moonraker.conf` должна быть секция (KIAUH добавляет сам):
-
-```ini
-[update_manager crowsnest]
-type: git_repo
-path: ~/crowsnest
-origin: https://github.com/mainsail-crew/crowsnest.git
-install_script: tools/pkglist.sh
-managed_services: crowsnest
-is_system_service: true
-```
-
----
-
-## 3. Crowsnest — две камеры
+## 2. Crowsnest — одна камера
 
 Файл на Pi: **`~/printer_data/config/crowsnest.conf`**
-
-Скопируйте шаблон из репозитория и подставьте свои `device`:
 
 ```bash
 cp klipper_config_mks_monster8/cameras/crowsnest.conf.example ~/printer_data/config/crowsnest.conf
 nano ~/printer_data/config/crowsnest.conf
 ```
 
-**Замените** строки `device:` на пути из шага 1.
+Замените строку `device:` на ваш путь из шага 1.
 
-### Рекомендуемые настройки для RPi 4B
+| Параметр | Значение |
+|----------|----------|
+| Блок | `[cam chamber]` |
+| Порт | `8080` |
+| URL в Mainsail | `/webcam/?action=stream` |
 
-| Камера | Порт | URL в Mainsail |
-|--------|------|----------------|
-| Корпус (chamber) | 8080 | `/webcam/?action=stream` |
-| Сопло (nozzle) | 8081 | `/webcam2/?action=stream` |
-
-Для Pi 4 можно `mode: camera-streamer` (WebRTC, меньше нагрузка) или `ustreamer` (проще, MJPEG).
+**Удалите** второй блок `[cam nozzle]` и порт `8081`, если он остался от старой двухкамерной схемы — иначе Crowsnest может не стартовать или Mainsail будет ждать `/webcam2/`.
 
 Перезапуск:
 
 ```bash
 sudo systemctl restart crowsnest
-journalctl -u crowsnest -n 50 --no-pager
+journalctl -u crowsnest -n 40 --no-pager
 ```
 
-В логе не должно быть ошибок `device` / `Cannot open`.
+В логе не должно быть `Cannot open device` / `No such file`.
 
-Проверка в браузере (замените IP):
+Проверка в браузере (после входа в Mainsail):
 
 ```
 http://<IP-принтера>/webcam/?action=stream
-http://<IP-принтера>/webcam2/?action=stream
 ```
-
----
-
-## 4. Moonraker — регистрация в Mainsail
-
-Файл: **`~/printer_data/config/moonraker.conf`**
-
-Добавьте (или включите через `include`):
-
-```bash
-cat klipper_config_mks_monster8/cameras/moonraker-webcams.conf.example
-```
-
-Скопируйте содержимое в конец `moonraker.conf` или:
-
-```ini
-[include moonraker-webcams.conf]
-```
-
-и положите фрагмент в `~/printer_data/config/moonraker-webcams.conf`.
-
-Перезапуск:
-
-```bash
-sudo systemctl restart moonraker
-```
-
-В Mainsail: **Настройки → Камеры** — должны появиться **Chamber** и **Nozzle**.
-
----
-
-## 4.1 Crowsnest OK, но в Mainsail пусто
-
-### Шаг A — потоки в браузере (без Mainsail)
-
-На ПК в браузере откройте (подставьте IP Pi):
-
-```
-http://192.168.x.x/webcam/?action=stream
-http://192.168.x.x/webcam2/?action=stream
-```
-
-| Результат | Значение |
-|-----------|----------|
-| Видео есть | Crowsnest + nginx OK → проблема в Moonraker/Mainsail |
-| 404 / пусто | nginx/Crowsnest — проверьте `systemctl status crowsnest` |
-| Запрашивает логин | норма для MainsailOS — войдите в Mainsail, затем откройте URL снова |
 
 На Pi:
 
 ```bash
 curl -I http://127.0.0.1/webcam/?action=stream
-curl -I http://127.0.0.1/webcam2/?action=stream
 ```
 
-Ожидается `HTTP/1.1 200` или `multipart/x-mixed-replace`.
+Ожидается `HTTP/1.1 200` или `Content-Type: multipart/x-mixed-replace`.
 
-### Шаг B — видит ли Moonraker камеры
+---
+
+## 3. Moonraker — одна webcam
+
+Файл: **`~/printer_data/config/moonraker-webcams.conf`**
 
 ```bash
-curl -s http://127.0.0.1:7125/server/webcams/list | python3 -m json.tool
+cp klipper_config_mks_monster8/cameras/moonraker-webcams.conf.example ~/printer_data/config/moonraker-webcams.conf
 ```
 
-**Если `"webcams": []` или пусто** — в `moonraker.conf` нет секций webcam.
-
-Создайте файл:
-
-```bash
-nano ~/printer_data/config/moonraker-webcams.conf
-```
-
-Вставьте:
-
-```ini
-[webcam chamber]
-location: chamber
-service: crowsnest
-enabled: true
-stream_url: /webcam/?action=stream
-snapshot_url: /webcam/?action=snapshot
-
-[webcam nozzle]
-location: nozzle
-service: crowsnest
-enabled: true
-stream_url: /webcam2/?action=stream
-snapshot_url: /webcam2/?action=snapshot
-```
-
-В **`~/printer_data/config/moonraker.conf`** в конец добавьте (если ещё нет):
+В **`~/printer_data/config/moonraker.conf`**:
 
 ```ini
 [include moonraker-webcams.conf]
 ```
+
+**Удалите** из `moonraker.conf` (если есть):
+
+- `[webcam nozzle]` с `/webcam2/`
+- старую одиночную секцию `[webcam]` без имени
+- дублирующие `stream_url` на несуществующий поток
 
 ```bash
 sudo systemctl restart moonraker
 curl -s http://127.0.0.1:7125/server/webcams/list | python3 -m json.tool
 ```
 
-Должны быть **chamber** и **nozzle**.
+Должна быть одна запись **`chamber`**, `enabled: true`.
 
-### Шаг C — Mainsail
+---
 
-1. Жёсткое обновление страницы: **Ctrl+Shift+R**
-2. **Настройки → Камеры (Webcams)** — включите отображение на дашборде
-3. Если список пуст — **Добавить камеру** вручную:
+## 4. Mainsail
 
-| Поле | Chamber | Nozzle |
-|------|---------|--------|
-| Имя | chamber | nozzle |
-| Stream URL | `/webcam/?action=stream` | `/webcam2/?action=stream` |
-| Snapshot URL | `/webcam/?action=snapshot` | `/webcam2/?action=snapshot` |
-| Тип / Service | crowsnest или MJPEG | то же |
+1. **Ctrl+Shift+R** — жёсткое обновление страницы
+2. **Настройки → Камеры** — только **chamber**, stream `/webcam/?action=stream`
+3. Удалите или отключите камеру **nozzle** (если осталась в UI)
+4. На дашборде: иконка камеры → выбрать **chamber**
 
-4. На дашборде: иконка **камеры** на панели — выбрать активную webcam
+Ручное добавление, если список пуст:
 
-### Шаг D — старый конфликт
-
-Удалите или закомментируйте в `moonraker.conf` устаревшие секции:
-
-```ini
-# [webcam]
-# stream_url: ...
-```
-
-Оставьте только `[webcam chamber]` и `[webcam nozzle]` (или include).
+| Поле | Значение |
+|------|----------|
+| Имя | chamber |
+| Stream URL | `/webcam/?action=stream` |
+| Snapshot URL | `/webcam/?action=snapshot` |
+| Service | crowsnest |
 
 ---
 
@@ -244,48 +134,40 @@ curl -s http://127.0.0.1:7125/server/webcams/list | python3 -m json.tool
 
 | Симптом | Решение |
 |---------|---------|
-| `InterpolationSyntaxError: '%LOGPATH%'` | Python 3.13: `log_path: %%LOGPATH%%` (двойной `%`) |
-| Чёрный экран | Неверный `/dev/video*` — используйте `by-id`, проверьте `v4l2-ctl --list-devices` |
-| Камеры поменялись местами | Поменяйте `device:` в `crowsnest.conf` |
-| Высокая нагрузка на Pi | `resolution: 1280x720` → `640x480`, `max_fps: 10` |
-| Одна камера работает | Уникальный `port` (8080 / 8081), разные `device` |
-| Нет службы crowsnest | `KIAUH` → установить Crowsnest |
-| Crowsnest OK, Mainsail пусто | `curl …/server/webcams/list` → добавить `moonraker-webcams.conf` + `[include]` |
+| Чёрный экран | Неверный `device:` — только `by-id/*-video-index0`; попробуйте `mode: ustreamer` вместо `camera-streamer` |
+| 404 на `/webcam/` | `systemctl status crowsnest` — служба не запущена; смотрите `journalctl -u crowsnest` |
+| Работает `/webcam2/`, не `/webcam/` | В `crowsnest.conf` осталась только nozzle на 8081 — оставьте один `[cam chamber]` на 8080 |
+| Mainsail пусто, URL в браузере OK | Нет `[webcam chamber]` в Moonraker — шаг 3 |
+| `InterpolationSyntaxError: '%LOGPATH%'` | Python 3.13: в `crowsnest.conf` уже `log_path: %%LOGPATH%%` |
+| Высокая нагрузка на Pi | `resolution: 640x480`, `max_fps: 10` |
+| Камера пропала после перестановки USB | Снова `ls /dev/v4l/by-id/` и обновить `device:` |
 
-### Поворот / зеркало
+### Поворот
 
-В `crowsnest.conf` для камеры:
+В `crowsnest.conf`:
 
 ```ini
-#custom_flags: --device-timeout=2
 #v4l2ctl: rotate=180
 ```
 
-Или в Mainsail в настройках webcam: flip / rotation.
+Или в Mainsail → настройки webcam → rotation.
 
 ---
 
-## 6. Obico / таймлапсы (опционально)
+## 6. Таймлапс
 
-Для Obico укажите stream URL основной камеры:
-
-```
-http://<IP>/webcam/?action=stream
-```
-
-Таймлапсы в Mainsail: **Timelapse** plugin (если установлен) — камера **chamber** (8080).
+Moonraker-timelapse использует камеру **chamber** (порт 8080). См. `doc/timelapse_setup.md`.
 
 ---
 
 ## 7. Чеклист
 
-- [ ] `v4l2-ctl --list-devices` — два рабочих video-index0
-- [ ] `crowsnest.conf` — два блока `[cam ...]`, порты 8080 и 8081
-- [ ] `systemctl restart crowsnest` — без ошибок в логе
-- [ ] Браузер — оба URL открываются
-- [ ] `moonraker.conf` — секции `[webcam chamber]` и `[webcam nozzle]`
-- [ ] Mainsail — обе камеры в интерфейсе
+- [ ] `ls /dev/v4l/by-id/*-video-index0` — один путь
+- [ ] `crowsnest.conf` — один `[cam chamber]`, порт 8080, верный `device:`
+- [ ] Нет `[cam nozzle]` / порта 8081
+- [ ] `systemctl restart crowsnest` — без ошибок
+- [ ] Браузер: `/webcam/?action=stream` показывает видео
+- [ ] `moonraker-webcams.conf` — только `[webcam chamber]`
+- [ ] Mainsail — chamber на дашборде
 
----
-
-*Шаблоны: `klipper_config_mks_monster8/cameras/` в репозитории.*
+Шаблоны: `klipper_config_mks_monster8/cameras/`

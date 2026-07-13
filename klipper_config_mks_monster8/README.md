@@ -26,7 +26,7 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 
 **Периферия:** `doc/peripherals_3def.md` | **Таймлапс:** `doc/timelapse_setup.md`
 
-**Камеры (2× USB):** `doc/cameras_setup.md` + шаблоны в `cameras/`.
+**Камера (1× USB, корпус):** `doc/cameras_setup.md` + `cameras/install-single-camera.sh`
 
 ## Калибровка
 
