@@ -326,12 +326,10 @@ MESH
 
 ### Минимум
 
-**Machine start G-code:**
+**Machine start G-code** (Orca adaptive mesh — см. `slicer_gcode.md`):
 
 ```gcode
-PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
-MESH ADAPTIVE=1
-PRINT_BEGIN EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
+PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer] MESH_MIN_X={adaptive_bed_mesh_min[0]} MESH_MIN_Y={adaptive_bed_mesh_min[1]} MESH_MAX_X={adaptive_bed_mesh_max[0]} MESH_MAX_Y={adaptive_bed_mesh_max[1]} PROBE_COUNT_X={bed_mesh_probe_count[0]} PROBE_COUNT_Y={bed_mesh_probe_count[1]} MESH_ALGO=[bed_mesh_algo]
 ```
 
 **Machine end G-code:**
@@ -340,17 +338,16 @@ PRINT_BEGIN EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
 PRINT_END
 ```
 
-### Обязательно включить
+### Обязательно в Orca
 
-- **Label objects** (Orca / Bambu: Print settings → Others) — для adaptive mesh
-- **Moonraker** `enable_object_processing: True`
-- Размер стола **500×500**, центр **250, 250**
+- **Printer Settings → Adaptive Bed Mesh**: `bed_mesh_min` 30,30 / `bed_mesh_max` 470,470
+- **Label objects** — опционально (для exclude в UI)
 
 ### Не добавлять в слайсер
 
-- `G28`, `M190`, `M109` — уже в `PRINT_START` / `PRINT_BEGIN`
-- `BED_MESH_CALIBRATE` напрямую — используйте `MESH ADAPTIVE=1`
-- Свою priming line — продувка в `PRINT_BEGIN` → `_PURGE_LINE`
+- `G28`, `M190`, `M109` — в `PRINT_START`
+- Отдельный `BED_MESH_CALIBRATE` — mesh внутри `PRINT_START`
+- Свою priming line — продувка в `_PURGE_LINE`
 
 ---
 
@@ -361,7 +358,7 @@ PRINT_END
 - [ ] Полная калибровка (разделы 4–9) выполнена или SAVE_CONFIG актуален
 - [ ] Филамент загружен, датчик runout работает
 - [ ] Стол чистый (спирт / мыльная вода для PEI)
-- [ ] Слайсер: `PRINT_START` + `MESH ADAPTIVE=1` + `PRINT_BEGIN` / `PRINT_END`, Label objects включён
+- [ ] Слайсер: `PRINT_START` / `PRINT_END`, Adaptive Bed Mesh в профиле Orca
 - [ ] Тестовая модель: калибровочный куб 20×20×20 или первый слой
 
 ### Запуск
@@ -369,9 +366,7 @@ PRINT_END
 1. Загрузите G-code в Mainsail/Fluidd
 2. Проверьте температуры в начале файла:
    ```gcode
-   PRINT_START BED_TEMP=60 EXTRUDER_TEMP=240
-   MESH ADAPTIVE=1
-   PRINT_BEGIN EXTRUDER_TEMP=240
+   PRINT_START BED_TEMP=60 EXTRUDER_TEMP=240 MESH_MIN_X=45.2 MESH_MIN_Y=38.1 MESH_MAX_X=312.5 MESH_MAX_Y=285.0 PROBE_COUNT_X=6 PROBE_COUNT_Y=5 MESH_ALGO=bicubic
    ```
 3. **Print** — не прерывайте первые ~15 минут (homing, QGL, mesh, purge)
 
@@ -386,21 +381,20 @@ PURGE_LINE
 
 ---
 
-## 13. Что делает каждая печать
+## 13. Что делает каждая печать (PRINT_START)
 
-Слайсер вызывает три команды подряд (см. `doc/slicer_gcode.md`):
+Один макрос `PRINT_START` (Orca передаёт границы mesh при слайсинге):
 
-| Шаг | Команда | Действие |
-|-----|---------|----------|
-| 1 | `PRINT_START` | Подсветка, G28, нагрев стола, QGL, G28 Z, touch home @ 150 °C |
-| 2 | `MESH ADAPTIVE=1` | Adaptive mesh (Cartographer scan) |
-| 3 | `PRINT_BEGIN` | Нагрев сопла, продувка, парковка в центр |
+| Шаг | Действие |
+|-----|----------|
+| 1 | Подсветка, G28, нагрев стола, QGL, G28 Z |
+| 2 | Touch home @ 150 °C |
+| 3 | `BED_MESH_CALIBRATE` — зона от Orca (`ADAPTIVE=0`) |
+| 4 | Нагрев сопла, продувка, парковка в центр |
 
 `PRINT_END`: retract, парковка Y=480, вытяжка + Nevermore на 10 мин.
 
-### Продувка
-
-Линия X **50→182**, Y=20, E=35. Длина 132 мм — в пределах `max_extrude_cross_section` Klipper для сопла 0.4 мм (лимит 0.640 mm²).
+Продувка: X 50→182, E=26.
 
 ---
 
