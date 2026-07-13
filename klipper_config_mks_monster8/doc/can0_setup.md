@@ -148,7 +148,12 @@ Monster8 прошит **USB to CAN bus bridge**. Pi видит `can0` через
 ## 2. Пины корпуса Monster8 (только для `[mcu]` = F407)
 
 > PB0/PB1 зарезервированы под CAN в bridge-режиме.
-> Nevermore PB0 (`temperature_fan`, датчик PC0) | вытяжка PA3 | апп.отсек PA0 (`temperature_mcu`) | подсветка PA8 (см. `printer.cfg`).
+> Nevermore PB0 (`temperature_fan`, датчик PC0) | вытяжка PA3 | апп.отсек PA0 (`temperature_host`) | подсветка PA8 (см. `printer.cfg`).
+
+### Температура Monster8 / апп. отсека
+
+`temperature_mcu` (`ADC_TEMPERATURE`) на `[mcu]` в CAN-конфигурации часто даёт ошибку или конфликт с `controller_fan`.  
+В `printer.cfg`: `[temperature_sensor Monster8]` и `[temperature_fan controller_fan]` используют **`temperature_host`** (температура RPi в том же отсеке). `target_temp: 50` для вентилятора — ориентир под CPU Pi, не под кристалл F407.
 
 ## 3. Интерфейс can0 (MainsailOS)
 
