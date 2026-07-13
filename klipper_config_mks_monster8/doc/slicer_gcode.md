@@ -14,8 +14,18 @@
 ### Machine start G-code
 
 ```gcode
+M117 ; Moonraker: EXCLUDE_OBJECT до PRINT_START (нужно для adaptive mesh)
 ; Voron 2.4 Gr1mSkull — Kalico + Cartographer
 PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
+```
+
+**Почему `M117`:** Moonraker часто вставляет `EXCLUDE_OBJECT_DEFINE` **после** первой строки стартового G-code. Без `M117` в `PRINT_START` ещё нет объектов → `BED_MESH_CALIBRATE ADAPTIVE=1` не строит сетку. Макрос автоматически переключится на полный скан, но adaptive не сработает.
+
+**Moonraker** (`moonraker.conf`):
+
+```ini
+[file_manager]
+enable_object_processing: True
 ```
 
 Синтаксис Orca 2.3+ (векторные плейсхолдеры — для Filament → Advanced или если `[]` не подставляются):

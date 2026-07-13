@@ -7,9 +7,11 @@
 #####################################################################
 
 # ── Machine start G-code ───────────────────────────────────────────
-# Всё подготовительное (G28, QGL, mesh, purge) — внутри PRINT_START.
-# НЕ добавляйте сюда: G28, M190, M109, BED_MESH_CALIBRATE, priming line.
+# M117 перед PRINT_START — Moonraker вставляет EXCLUDE_OBJECT до старта
+# (иначе ADAPTIVE mesh в PRINT_START не видит объекты и сетка не строится).
+# НЕ добавляйте: G28, M190, M109, BED_MESH_CALIBRATE, priming line.
 
+M117 ; force exclude_object before PRINT_START
 ; Voron 2.4 Gr1mSkull — Kalico + Cartographer
 PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
 
