@@ -1,6 +1,6 @@
 # Timelapse (moonraker-timelapse)
 
-Конфиг макросов: `includes/timelapse.cfg` (уже подключён в `printer.cfg`).
+Макросы таймлапса — в `printer.cfg` (секция `# ТАЙМЛАПС`).
 
 ## Установка на RPi
 
@@ -34,4 +34,4 @@ GET_TIMELAPSE_SETUP
 
 ## Без плагина
 
-Если moonraker-timelapse не установлен — **удалите** `TIMELAPSE_TAKE_FRAME` из слайсера и закомментируйте `[include includes/timelapse.cfg]` в `printer.cfg`.
+Если moonraker-timelapse не установлен — **удалите** `TIMELAPSE_TAKE_FRAME` из слайсера и закомментируйте секцию `# ТАЙМЛАПС` в `printer.cfg`.

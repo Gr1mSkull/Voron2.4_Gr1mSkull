@@ -50,7 +50,7 @@ PAUSE
 ### Layer change / Timelapse
 
 Установите [moonraker-timelapse](https://github.com/mainsail-crew/moonraker-timelapse) на RPi.  
-В `printer.cfg` уже подключён `includes/timelapse.cfg`.
+Макросы уже в `printer.cfg` (секция `# ТАЙМЛАПС`).
 
 **Orca → Machine G-code → Layer change:**
 

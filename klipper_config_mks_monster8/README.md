@@ -11,7 +11,6 @@
 
 ```bash
 cp klipper_config_mks_monster8/printer.cfg ~/printer_data/config/
-cp -r klipper_config_mks_monster8/includes ~/printer_data/config/
 # документация (опционально):
 cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 ```
@@ -21,7 +20,7 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 3. Пропишите CAN UUID в начале `printer.cfg` (секции `[mcu]`, `[mcu EBBCan]`, `[mcu cartographer]`)
 4. `FIRMWARE_RESTART`
 
-Весь конфиг — `printer.cfg` + **`includes/`** (таймлапс, очистка сопла, LED, Nevermore, датчик филамента — эталон [3Def](https://github.com/deflord/3def/tree/main/Конфигурационные%20файлы/MKS%208V2/SB2040V3/500)). XY — **2WD sensorless** (TMC StallGuard). Z — Cartographer 3D (scan + touch). EBB — **STM32G0** (пины `PA*` / `PD*` / `PB*`).
+Весь конфиг — **один файл** `printer.cfg` (таймлапс, scrub, LED, Nevermore, датчик — эталон [3Def](https://github.com/deflord/3def/tree/main/Конфигурационные%20файлы/MKS%208V2/SB2040V3/500)). XY — **2WD sensorless** (TMC StallGuard). Z — Cartographer 3D (scan + touch). EBB — **STM32G0** (пины `PA*` / `PD*` / `PB*`).
 
 **Периферия:** `doc/peripherals_3def.md` | **Таймлапс:** `doc/timelapse_setup.md`
 
@@ -60,8 +59,7 @@ PRINT_END
 
 ```
 klipper_config_mks_monster8/
-├── printer.cfg            ← основной конфиг + [include]
-├── includes/              ← модули 3Def (timelapse, scrub, LED, …)
+├── printer.cfg            ← весь конфиг (единый файл)
 ├── cameras/               ← шаблоны crowsnest + moonraker
 └── doc/
     ├── kalico_setup.md

@@ -1,17 +1,17 @@
 # Периферия (эталон 3Def SB2040V3/500)
 
-Модули в `includes/` — адаптированы под **MKS Monster8 V2** + **EBB SB2209 CAN**.
+Всё в **`printer.cfg`** — адаптировано под **MKS Monster8 V2** + **EBB SB2209 CAN**.
 
-| Модуль | Файл | Пины / примечания |
-|--------|------|-------------------|
-| Таймлапс | `timelapse.cfg` | moonraker-timelapse, см. `doc/timelapse_setup.md` |
-| Очистка сопла | `nozzle_scrub.cfg` | `clean_nozzle`, щётка X≈380 Y≈356 (500 мм) |
-| StealthBurner LED | `stealthburner_leds.cfg` | `sb_leds` на `EBBCan:PD3` |
-| Подсветка камеры | `led.cfg` | `onled` / `offled` → `Подсветка` PA8 + sb_leds |
-| Nevermore | `nevermore.cfg` | `NEVERMORE_ON/OFF`, `temperature_fan nevermore` PB0 |
-| Выкл. модуль | `offmodule.cfg` | `DWGJ_ON` → `PRINT_END` → `M81` → PC5 |
-| Датчик филамента | `filament_sensor.cfg` | `[filament_motion_sensor Пластик]` PB12 |
-| Пауза / загрузка | `macros_pause.cfg` | `LOAD_FILAMENT`, `UNLOAD_FILAMENT` |
+| Модуль | Секция в printer.cfg | Пины / примечания |
+|--------|----------------------|-------------------|
+| Таймлапс | `# ТАЙМЛАПС` | moonraker-timelapse, см. `doc/timelapse_setup.md` |
+| Очистка сопла | `# ОЧИСТКА СОПЛА` | `clean_nozzle`, щётка X≈380 Y≈356 (500 мм) |
+| StealthBurner LED | `# STEALTHBURNER LED` | `sb_leds` на `EBBCan:PD3` |
+| Подсветка камеры | `onled` / `offled` | `Подсветка` PA8 + sb_leds |
+| Nevermore | `NEVERMORE_ON/OFF` | `temperature_fan nevermore` PB0 |
+| Выкл. модуль | `# МОДУЛЬ ВКЛ/ВЫКЛ` | `DWGJ_ON` → `PRINT_END` → `M81` → PC5 |
+| Датчик филамента | `[filament_motion_sensor Пластик]` | PB12 |
+| Пауза / загрузка | `# ПАУЗА` | `LOAD_FILAMENT`, `UNLOAD_FILAMENT` |
 
 ## Автоотключение
 
