@@ -46,6 +46,8 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 ```gcode
 ; Старт
 PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
+MESH ADAPTIVE=1
+PRINT_BEGIN EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
 
 ; Конец
 PRINT_END
@@ -72,7 +74,9 @@ klipper_config_mks_monster8/
 | Макрос | Назначение |
 |--------|------------|
 | `G32` | Homing + QGL (без mesh) |
-| `PRINT_START` | Старт: adaptive mesh + продувочная линия |
+| `PRINT_START` | Homing, QGL, touch home |
+| `MESH ADAPTIVE=1` | Adaptive mesh (в G-code слайсера) |
+| `PRINT_BEGIN` | Нагрев + продувочная линия |
 | `PRINT_END` | Завершение печати |
 | `PURGE_LINE` | Только продувка (тест) |
 | `MESH` | Ручная сетка (`MESH ADAPTIVE=1` — по объекту) |

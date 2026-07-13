@@ -3,18 +3,16 @@
 # Voron 2.4 500 Gr1mSkull | Kalico + Cartographer
 #
 # Куда: Printer preset → Printer Settings → Machine G-code
-# ВАЖНО: в каждом поле — ТОЛЬКО строки ниже. Удалите шаблон Orca/Bambu!
 #####################################################################
 
 # ── Machine start G-code ───────────────────────────────────────────
-# Только эти строки. Без G28, M190, T0, TIMELAPSE, priming line.
+# Порядок важен: prep → mesh (после EXCLUDE_OBJECT от Moonraker) → purge
+# Без G28, M190, T0, TIMELAPSE, priming line.
 
 ; Voron 2.4 Gr1mSkull — Kalico + Cartographer
 PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
-
-# Опционально (adaptive mesh): раскомментируйте M117 — см. doc/slicer_gcode.md
-# M117
-# PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
+MESH ADAPTIVE=1
+PRINT_BEGIN EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
 
 
 # ── Machine end G-code ─────────────────────────────────────────────
@@ -32,41 +30,22 @@ PAUSE
 PAUSE
 
 
-# ── Printing by object G-code ──────────────────────────────────────
+# ── Printing by object / Before layer change / Layer change / Timelapse
 # ПУСТО
 
 
-# ── Before layer change G-code ─────────────────────────────────────
-# ПУСТО — удалите TIMELAPSE_TAKE_FRAME если Orca подставил сам!
-
-
-# ── Layer change G-code ─────────────────────────────────────────────
-# ПУСТО
-
-
-# ── Timelapse G-code ───────────────────────────────────────────────
-# ПУСТО — timelapse только с плагином moonraker-timelapse
-
-
 #####################################################################
-# Orca: что отключить в UI (иначе ошибки при старте)
+# Moonraker (обязательно для adaptive mesh)
 #####################################################################
 #
-# Printer Settings → Motion Ability / прочее:
-#   - G-code flavor: Klipper
+# moonraker.conf:
+#   [file_manager]
+#   enable_object_processing: True
 #
-# Printer Settings → Machine G-code → Timelapse:
-#   - Выключить timelapse ИЛИ очистить все поля timelapse g-code
+# Orca Process → Others → Label objects: Вкл.
 #
-# Process → Others:
-#   - Label objects: Вкл. (для adaptive mesh)
-#   - Timelapse / Smooth mode purge: Выкл.
+# Если adaptive не срабатывает — перенесите только эту строку
+# в Filament preset → Advanced → Start G-code:
+#   MESH ADAPTIVE=1
 #
-# Типичные ошибки если не очистить Orca-шаблон:
-#   Unknown command:"TIMELAPSE_TAKE_FRAME"
-#   Unknown command:"T0"
-#   Must home axis first  (timelapse двигает до G28)
-#   Extrude below minimum temp  (timelapse/priming до нагрева)
-#
-# Проверка: откройте .gcode — после PRINT_START не должно быть T0/TIMELAPSE
-# до первого слоя печати (кроме заглушек в printer.cfg).
+# Проверка .gcode: перед MESH ADAPTIVE=1 должны быть EXCLUDE_OBJECT_DEFINE
