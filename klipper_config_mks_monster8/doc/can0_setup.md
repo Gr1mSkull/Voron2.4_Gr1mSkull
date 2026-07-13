@@ -148,7 +148,7 @@ Monster8 прошит **USB to CAN bus bridge**. Pi видит `can0` через
 ## 2. Пины корпуса Monster8 (только для `[mcu]` = F407)
 
 > PB0/PB1 зарезервированы под CAN в bridge-режиме.
-> PA2 — апп.отсек (FAN0), PA0 — nevermore (FAN2), PA3 — вытяжка, PA8 — neopixel (см. `printer.cfg`).
+> Nevermore PB0 (`temperature_fan`, датчик PC0) | вытяжка PA3 | апп.отсек PA0 (`temperature_mcu`) | подсветка PA8 (см. `printer.cfg`).
 
 ## 3. Интерфейс can0 (MainsailOS)
 
