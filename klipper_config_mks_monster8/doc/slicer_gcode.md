@@ -66,8 +66,6 @@ PAUSE
 
 **Printer Settings → Timelapse** — выключить, пока не установлен [moonraker-timelapse](https://github.com/mainsail-crew/moonraker-timelapse).
 
-В `printer.cfg` есть заглушки `T0` / `TIMELAPSE_TAKE_FRAME` — ошибки не остановят печать, но лучше убрать лишнее из Orca.
-
 ### Типичные ошибки Orca при старте
 
 | Ошибка | Причина | Решение |
