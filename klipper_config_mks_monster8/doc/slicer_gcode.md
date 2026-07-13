@@ -13,13 +13,15 @@
 
 ### Machine start G-code
 
+**Только эти строки** — без `G28`, `T0`, `TIMELAPSE_TAKE_FRAME`, priming:
+
 ```gcode
-M117 ; Moonraker: EXCLUDE_OBJECT до PRINT_START (нужно для adaptive mesh)
 ; Voron 2.4 Gr1mSkull — Kalico + Cartographer
 PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
 ```
 
-**Почему `M117`:** Moonraker часто вставляет `EXCLUDE_OBJECT_DEFINE` **после** первой строки стартового G-code. Без `M117` в `PRINT_START` ещё нет объектов → `BED_MESH_CALIBRATE ADAPTIVE=1` не строит сетку. Макрос автоматически переключится на полный скан, но adaptive не сработает.
+`M117` перед `PRINT_START` — **опционально** (для adaptive mesh через Moonraker). Без него макрос сделает полный скан стола — это нормально.  
+Если видите ошибки `TIMELAPSE` / `T0` / `Must home` / `Extrude below min temp` — причина **не в M117**, а в лишних командах Orca (см. ниже).
 
 **Moonraker** (`moonraker.conf`):
 
@@ -56,7 +58,24 @@ PAUSE
 
 ### Printing by object / Layer change / Timelapse
 
-Оставить **пустыми** (adaptive mesh один раз в `PRINT_START`).
+Оставить **пустыми**. Удалите из полей Orca, если подставилось автоматически:
+
+- `TIMELAPSE_TAKE_FRAME` — в **Before layer change** или **Timelapse G-code**
+- `T0` — из Machine start (шаблон Bambu/multi-tool)
+- Любой `G28`, `M190`, priming line
+
+**Printer Settings → Timelapse** — выключить, пока не установлен [moonraker-timelapse](https://github.com/mainsail-crew/moonraker-timelapse).
+
+В `printer.cfg` есть заглушки `T0` / `TIMELAPSE_TAKE_FRAME` — ошибки не остановят печать, но лучше убрать лишнее из Orca.
+
+### Типичные ошибки Orca при старте
+
+| Ошибка | Причина | Решение |
+|--------|---------|---------|
+| `Unknown command:"TIMELAPSE_TAKE_FRAME"` | Timelapse в Orca без плагина | Очистить Timelapse / Before layer change G-code |
+| `Unknown command:"T0"` | Шаблон multi-tool | Удалить `T0` из Machine start |
+| `Must home axis first` | Движение до `G28` в `PRINT_START` | Убрать timelapse/priming из старта Orca |
+| `Extrude below minimum temp` | Экструзия до `M109` в `PRINT_START` | То же — только `PRINT_START`, без priming Orca |
 
 ### Настройки профиля принтера (Orca)
 
