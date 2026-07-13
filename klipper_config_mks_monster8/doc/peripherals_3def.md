@@ -9,25 +9,8 @@
 | StealthBurner LED | `# STEALTHBURNER LED` | `sb_leds` на `EBBCan:PD3` |
 | Подсветка камеры | `onled` / `offled` | `Подсветка` PA8 + sb_leds |
 | Nevermore | `NEVERMORE_ON/OFF` | `temperature_fan nevermore` PB0 |
-| Выкл. модуль | `# МОДУЛЬ ВКЛ/ВЫКЛ` | `DWGJ_ON` → `PRINT_END` → `POWER_OFF` → PC5 |
 | Датчик филамента | `[filament_motion_sensor Пластик]` | PB12 |
 | Пауза / загрузка | `# ПАУЗА` | `LOAD_FILAMENT`, `UNLOAD_FILAMENT` |
-
-## Автоотключение
-
-Перед печатью (если нужно выключить принтер после job):
-
-```
-DWGJ_ON
-```
-
-Отмена:
-
-```
-DWGJ_OFF
-```
-
-`PRINT_END` запускает отложенный `powerOFF` (300 с) — срабатывает только при активном `DWGJ_ON`.
 
 ## Датчик филамента
 

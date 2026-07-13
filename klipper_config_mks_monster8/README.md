@@ -77,10 +77,9 @@ klipper_config_mks_monster8/
 |--------|------------|
 | `G32` | G28 + `clean_nozzle` + QGL + Z |
 | `PRINT_START` | Старт: Orca adaptive mesh + touch + scrub + purge |
-| `PRINT_END` | Завершение + Nevermore/вытяжка + бипер + `powerOFF` |
+| `PRINT_END` | Завершение + Nevermore/вытяжка + бипер |
 | `onled` / `offled` | Подсветка камеры + SB |
 | `NEVERMORE_ON/OFF` | Угольный фильтр |
-| `DWGJ_ON/OFF` | Автоотключение питания (модуль PC5) |
 | `clean_nozzle` | Очистка сопла (щётка) |
 | `LOAD_FILAMENT` / `UNLOAD_FILAMENT` | Загрузка/выгрузка |
 | `PURGE_LINE` | Только продувка (тест) |
