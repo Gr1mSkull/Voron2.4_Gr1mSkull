@@ -330,6 +330,8 @@ MESH
 
 ```gcode
 PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
+MESH ADAPTIVE=1
+PRINT_BEGIN EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
 ```
 
 **Machine end G-code:**
@@ -341,13 +343,14 @@ PRINT_END
 ### Обязательно включить
 
 - **Label objects** (Orca / Bambu: Print settings → Others) — для adaptive mesh
+- **Moonraker** `enable_object_processing: True`
 - Размер стола **500×500**, центр **250, 250**
 
 ### Не добавлять в слайсер
 
-- `G28`, `M190`, `M109` — уже внутри `PRINT_START`
-- `BED_MESH_CALIBRATE` — уже в `PRINT_START`
-- Свою priming line — продувка в `_PURGE_LINE`
+- `G28`, `M190`, `M109` — уже в `PRINT_START` / `PRINT_BEGIN`
+- `BED_MESH_CALIBRATE` напрямую — используйте `MESH ADAPTIVE=1`
+- Свою priming line — продувка в `PRINT_BEGIN` → `_PURGE_LINE`
 
 ---
 
@@ -367,6 +370,8 @@ PRINT_END
 2. Проверьте температуры в начале файла:
    ```gcode
    PRINT_START BED_TEMP=60 EXTRUDER_TEMP=240
+   MESH ADAPTIVE=1
+   PRINT_BEGIN EXTRUDER_TEMP=240
    ```
 3. **Print** — не прерывайте первые ~15 минут (homing, QGL, mesh, purge)
 

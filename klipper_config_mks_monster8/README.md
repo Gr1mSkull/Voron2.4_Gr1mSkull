@@ -45,9 +45,7 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 
 ```gcode
 ; Старт
-PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
-MESH ADAPTIVE=1
-PRINT_BEGIN EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
+PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer] MESH_MIN_X={adaptive_bed_mesh_min[0]} MESH_MIN_Y={adaptive_bed_mesh_min[1]} MESH_MAX_X={adaptive_bed_mesh_max[0]} MESH_MAX_Y={adaptive_bed_mesh_max[1]} PROBE_COUNT_X={bed_mesh_probe_count[0]} PROBE_COUNT_Y={bed_mesh_probe_count[1]} MESH_ALGO=[bed_mesh_algo]
 
 ; Конец
 PRINT_END

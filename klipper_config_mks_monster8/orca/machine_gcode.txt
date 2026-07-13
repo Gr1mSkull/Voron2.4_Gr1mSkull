@@ -2,17 +2,16 @@
 # Orca Slicer — Machine G-code
 # Voron 2.4 500 Gr1mSkull | Kalico + Cartographer
 #
-# Куда: Printer preset → Printer Settings → Machine G-code
+# Документация Orca adaptive mesh:
+# https://github.com/OrcaSlicer/OrcaSlicer/wiki/printer_basic_information_adaptive_bed_mesh
 #####################################################################
 
 # ── Machine start G-code ───────────────────────────────────────────
-# Порядок важен: prep → mesh (после EXCLUDE_OBJECT от Moonraker) → purge
-# Без G28, M190, T0, TIMELAPSE, priming line.
+# Одна строка PRINT_START — Orca подставляет границы mesh при слайсинге.
+# ADAPTIVE=0 в макросе: зону считает Orca, не Klipper exclude_object.
 
 ; Voron 2.4 Gr1mSkull — Kalico + Cartographer
-PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
-MESH ADAPTIVE=1
-PRINT_BEGIN EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
+PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer] MESH_MIN_X={adaptive_bed_mesh_min[0]} MESH_MIN_Y={adaptive_bed_mesh_min[1]} MESH_MAX_X={adaptive_bed_mesh_max[0]} MESH_MAX_Y={adaptive_bed_mesh_max[1]} PROBE_COUNT_X={bed_mesh_probe_count[0]} PROBE_COUNT_Y={bed_mesh_probe_count[1]} MESH_ALGO=[bed_mesh_algo]
 
 
 # ── Machine end G-code ─────────────────────────────────────────────
@@ -20,12 +19,7 @@ PRINT_BEGIN EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
 PRINT_END
 
 
-# ── Pause G-code ───────────────────────────────────────────────────
-
-PAUSE
-
-
-# ── Change filament G-code ─────────────────────────────────────────
+# ── Pause / Change filament ────────────────────────────────────────
 
 PAUSE
 
@@ -35,17 +29,12 @@ PAUSE
 
 
 #####################################################################
-# Moonraker (обязательно для adaptive mesh)
+# Orca Printer Settings → Basic Information → Adaptive Bed Mesh
 #####################################################################
 #
-# moonraker.conf:
-#   [file_manager]
-#   enable_object_processing: True
+# bed_mesh_min: 30, 30        (как mesh_min в printer.cfg)
+# bed_mesh_max: 470, 470
+# bed_mesh_probe_distance: 50  (шаг сетки, мм)
+# adaptive_bed_mesh_margin: 10 (margin — Orca добавляет сам; в Klipper ADAPTIVE_MARGIN=0)
 #
-# Orca Process → Others → Label objects: Вкл.
-#
-# Если adaptive не срабатывает — перенесите только эту строку
-# в Filament preset → Advanced → Start G-code:
-#   MESH ADAPTIVE=1
-#
-# Проверка .gcode: перед MESH ADAPTIVE=1 должны быть EXCLUDE_OBJECT_DEFINE
+# Process → Others → Label objects: можно включить (exclude в UI), mesh не зависит от M117

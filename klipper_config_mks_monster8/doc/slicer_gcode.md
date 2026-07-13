@@ -1,42 +1,39 @@
 # G-code для слайсеров — Voron 2.4 Gr1mSkull (Kalico + Cartographer)
 
-Старт печати разбит на три шага в **Machine G-code** Orca:
+Вся подготовка — в одном макросе **`PRINT_START`**.  
+Orca передаёт границы adaptive mesh **при слайсинге** (плейсхолдеры `{adaptive_bed_mesh_*}`).
 
-1. `PRINT_START` — homing, QGL, touch home @ 150 °C  
-2. `MESH ADAPTIVE=1` — adaptive mesh **из слайсера** (видит объекты из G-code)  
-3. `PRINT_BEGIN` — нагрев до печати + продувка  
-
-В стартовый G-code **не** добавляйте: `G28`, `M190`, `M109`, `BED_MESH_CALIBRATE`, priming line.
+Документация Orca: [Adaptive Bed Mesh](https://github.com/OrcaSlicer/OrcaSlicer/wiki/printer_basic_information_adaptive_bed_mesh)
 
 ---
 
 ## Orca Slicer
 
-Полный набор полей — в [`orca/machine_gcode.txt`](../orca/machine_gcode.txt).
+Полный блок — в [`orca/machine_gcode.txt`](../orca/machine_gcode.txt).
 
-**Где:** Printer preset → **Printer Settings** → **Machine G-code**
+### Настройка принтера (один раз)
+
+**Printer Settings → Basic Information → Adaptive Bed Mesh** (Advanced):
+
+| Параметр Orca | Значение |
+|---------------|----------|
+| `bed_mesh_min` | `30`, `30` |
+| `bed_mesh_max` | `470`, `470` |
+| `bed_mesh_probe_distance` | `50` (шаг точек, мм) |
+| `adaptive_bed_mesh_margin` | `10` |
+
+Margin Orca учитывает сам — в Klipper передаётся `ADAPTIVE_MARGIN=0`.
+
+**Process → Others → Label objects** — по желанию (exclude в UI; mesh от Orca не зависит).
 
 ### Machine start G-code
 
 ```gcode
 ; Voron 2.4 Gr1mSkull — Kalico + Cartographer
-PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
-MESH ADAPTIVE=1
-PRINT_BEGIN EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
+PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer] MESH_MIN_X={adaptive_bed_mesh_min[0]} MESH_MIN_Y={adaptive_bed_mesh_min[1]} MESH_MAX_X={adaptive_bed_mesh_max[0]} MESH_MAX_Y={adaptive_bed_mesh_max[1]} PROBE_COUNT_X={bed_mesh_probe_count[0]} PROBE_COUNT_Y={bed_mesh_probe_count[1]} MESH_ALGO=[bed_mesh_algo]
 ```
 
-**Почему mesh в слайсере, а не в `PRINT_START`:** Moonraker вставляет `EXCLUDE_OBJECT_DEFINE` в `.gcode` **перед** стартовым блоком. Когда mesh был внутри макроса, объектов ещё не было. Отдельная строка `MESH ADAPTIVE=1` после `PRINT_START` выполняется, когда границы объектов уже в файле.
-
-**Moonraker** (`moonraker.conf`):
-
-```ini
-[file_manager]
-enable_object_processing: True
-```
-
-**Если adaptive не срабатывает** — перенесите только `MESH ADAPTIVE=1` в **Filament preset → Advanced → Start G-code** (после Machine start).
-
-**Проверка:** в `.gcode` перед `MESH ADAPTIVE=1` должны быть строки `EXCLUDE_OBJECT_DEFINE`.
+**Не добавляйте:** `G28`, `M190`, `M109`, отдельный `BED_MESH_CALIBRATE`, priming line, `T0`, `TIMELAPSE_TAKE_FRAME`.
 
 ### Machine end G-code
 
@@ -44,63 +41,54 @@ enable_object_processing: True
 PRINT_END
 ```
 
-### Pause / Change filament G-code
+### Pause / Change filament
 
 ```gcode
 PAUSE
 ```
 
-### Printing by object / Layer change / Timelapse
+### Layer change / Timelapse
 
-Оставить **пустыми**. Удалите `TIMELAPSE_TAKE_FRAME`, `T0`, `G28` если Orca подставил из шаблона.
+Пусто. Timelapse — выкл., пока нет moonraker-timelapse.
 
-### Настройки Orca
+### Проверка после слайсинга
 
-| Параметр | Значение |
-|----------|----------|
-| G-code flavor | Klipper |
-| **Others → Label objects** | **Вкл.** |
-| Bed leveling | None |
-| Timelapse | Выкл. (без moonraker-timelapse) |
+В `.gcode` одна строка `PRINT_START` с **числами** вместо плейсхолдеров:
+
+```gcode
+PRINT_START BED_TEMP=60 EXTRUDER_TEMP=240 MESH_MIN_X=45.2 MESH_MIN_Y=38.1 MESH_MAX_X=312.5 MESH_MAX_Y=285.0 PROBE_COUNT_X=6 PROBE_COUNT_Y=5 MESH_ALGO=bicubic
+```
+
+Если `MESH_MIN_X` и др. отсутствуют — в Orca не настроен Adaptive Bed Mesh в профиле принтера.
 
 ### Ручная сетка (консоль)
 
 ```
 MESH              ; полный стол
-MESH ADAPTIVE=1   ; по объектам в текущем G-code
-MESH SAVE=1       ; + записать в SAVE_CONFIG
+MESH ADAPTIVE=1   ; Klipper exclude_object (без Orca)
+MESH SAVE=1       ; + SAVE_CONFIG
 ```
 
 ---
 
 ## Bambu Studio
 
-### Machine start G-code
+Тот же `PRINT_START` с плейсхолдерами Orca/Bambu, если слайсер их поддерживает; иначе укороченный вызов без mesh-параметров (полный скан из `[bed_mesh]`).
 
 ```gcode
-; Voron 2.4 Gr1mSkull — Kalico + Cartographer
 PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
-MESH ADAPTIVE=1
-PRINT_BEGIN EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
 ```
-
-### Machine end G-code
 
 ```gcode
 PRINT_END
 ```
 
-Label objects — включить. Печать через Fluidd/Mainsail.
-
 ---
 
-## Проверка после слайсинга
+## Типичные ошибки Orca
 
-В начале `.gcode`:
-
-```gcode
-EXCLUDE_OBJECT_DEFINE NAME=...
-PRINT_START BED_TEMP=60 EXTRUDER_TEMP=240
-MESH ADAPTIVE=1
-PRINT_BEGIN EXTRUDER_TEMP=240
-```
+| Ошибка | Решение |
+|--------|---------|
+| `TIMELAPSE_TAKE_FRAME` / `T0` | Очистить шаблон Bambu в Machine G-code |
+| `Extrude below minimum temp` | Убрать priming Orca — purge в `PRINT_START` |
+| Mesh на весь стол | Включить Adaptive Bed Mesh в профиле принтера Orca |
