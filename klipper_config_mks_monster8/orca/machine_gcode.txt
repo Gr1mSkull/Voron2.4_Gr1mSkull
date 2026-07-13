@@ -25,7 +25,9 @@ PAUSE
 
 
 # ── Printing by object / Before layer change / Layer change / Timelapse
-# ПУСТО
+# moonraker-timelapse: установите плагин, [include timelapse.cfg] уже в printer.cfg
+
+TIMELAPSE_TAKE_FRAME
 
 
 #####################################################################

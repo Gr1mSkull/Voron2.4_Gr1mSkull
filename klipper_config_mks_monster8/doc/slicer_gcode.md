@@ -49,7 +49,19 @@ PAUSE
 
 ### Layer change / Timelapse
 
-Пусто. Timelapse — выкл., пока нет moonraker-timelapse.
+Установите [moonraker-timelapse](https://github.com/mainsail-crew/moonraker-timelapse) на RPi.  
+В `printer.cfg` уже подключён `includes/timelapse.cfg`.
+
+**Orca → Machine G-code → Layer change:**
+
+```gcode
+TIMELAPSE_TAKE_FRAME
+```
+
+Включение в консоли: `_SET_TIMELAPSE_SETUP ENABLE=True PARK_ENABLE=True`  
+Проверка: `GET_TIMELAPSE_SETUP`
+
+Без moonraker-timelapse оставьте поле пустым — иначе Klipper выдаст ошибку на неизвестную команду.
 
 ### Проверка после слайсинга
 

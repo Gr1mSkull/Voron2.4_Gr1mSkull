@@ -11,6 +11,7 @@
 
 ```bash
 cp klipper_config_mks_monster8/printer.cfg ~/printer_data/config/
+cp -r klipper_config_mks_monster8/includes ~/printer_data/config/
 # документация (опционально):
 cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 ```
@@ -20,7 +21,9 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 3. Пропишите CAN UUID в начале `printer.cfg` (секции `[mcu]`, `[mcu EBBCan]`, `[mcu cartographer]`)
 4. `FIRMWARE_RESTART`
 
-Весь конфиг — **один файл** `printer.cfg`. XY — **2WD sensorless** (TMC StallGuard). Z — Cartographer 3D (scan + touch). EBB — **STM32G0** (пины `PA*` / `PD*` / `PB*`).
+Весь конфиг — `printer.cfg` + **`includes/`** (таймлапс, очистка сопла, LED, Nevermore, датчик филамента — эталон [3Def](https://github.com/deflord/3def/tree/main/Конфигурационные%20файлы/MKS%208V2/SB2040V3/500)). XY — **2WD sensorless** (TMC StallGuard). Z — Cartographer 3D (scan + touch). EBB — **STM32G0** (пины `PA*` / `PD*` / `PB*`).
+
+**Периферия:** `doc/peripherals_3def.md` | **Таймлапс:** `doc/timelapse_setup.md`
 
 **Камеры (2× USB):** `doc/cameras_setup.md` + шаблоны в `cameras/`.
 
@@ -57,13 +60,16 @@ PRINT_END
 
 ```
 klipper_config_mks_monster8/
-├── printer.cfg            ← весь конфиг (единый файл)
+├── printer.cfg            ← основной конфиг + [include]
+├── includes/              ← модули 3Def (timelapse, scrub, LED, …)
 ├── cameras/               ← шаблоны crowsnest + moonraker
 └── doc/
     ├── kalico_setup.md
     ├── can0_setup.md
     ├── calibration.md
     ├── cameras_setup.md
+    ├── peripherals_3def.md
+    ├── timelapse_setup.md
     └── slicer_gcode.md
 ```
 
@@ -71,8 +77,14 @@ klipper_config_mks_monster8/
 
 | Макрос | Назначение |
 |--------|------------|
-| `G32` | Homing + QGL (без mesh) |
-| `PRINT_START` | Старт: Orca adaptive mesh + touch + purge |
-| `PRINT_END` | Завершение печати |
+| `G32` | G28 + `clean_nozzle` + QGL + Z |
+| `PRINT_START` | Старт: Orca adaptive mesh + touch + scrub + purge |
+| `PRINT_END` | Завершение + Nevermore/вытяжка + бипер + `powerOFF` |
+| `onled` / `offled` | Подсветка камеры + SB |
+| `NEVERMORE_ON/OFF` | Угольный фильтр |
+| `DWGJ_ON/OFF` | Автоотключение питания (модуль PC5) |
+| `clean_nozzle` | Очистка сопла (щётка) |
+| `LOAD_FILAMENT` / `UNLOAD_FILAMENT` | Загрузка/выгрузка |
 | `PURGE_LINE` | Только продувка (тест) |
 | `MESH` | Ручная сетка (`MESH ADAPTIVE=1` — по объекту) |
+| `TIMELAPSE_TAKE_FRAME` | Кадр таймлапса (layer change) |
