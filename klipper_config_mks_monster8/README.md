@@ -20,22 +20,9 @@ cp -r klipper_config_mks_monster8/doc ~/printer_data/config/
 3. Пропишите CAN UUID в начале `printer.cfg` (секции `[mcu]`, `[mcu EBBCan]`, `[mcu cartographer]`)
 4. `FIRMWARE_RESTART`
 
-### Ошибка `Option 'mcu' is not valid in section 'gcode_macro shut_down'`
+На Pi удалите старую папку `includes/` и любые следы `SHUT_DOWN` / `offmodule` — иначе возможна ошибка `gcode_macro shut_down` + `mcu`.
 
-Эта ошибка **не из актуального** `printer.cfg` в репозитории. На Raspberry Pi остался старый конфиг (модуль вкл/выкл 3Def с макросом `SHUT_DOWN` / `includes/offmodule.cfg`) или повреждённый блок `SAVE_CONFIG`.
-
-На Pi проверьте:
-
-```bash
-grep -niE 'shut_down|SHUT_DOWN|include includes|DWGJ|Выключатель' ~/printer_data/config/printer.cfg
-rm -rf ~/printer_data/config/includes/
-cp /path/to/repo/klipper_config_mks_monster8/printer.cfg ~/printer_data/config/
-FIRMWARE_RESTART
-```
-
-`grep` должен вернуть пусто. Строка `mcu: cartographer` допустима только в секции `[cartographer]`, не в `gcode_macro`.
-
-Весь конфиг — **один файл** `printer.cfg` (таймлапс, scrub, LED, Nevermore, датчик — эталон [3Def](https://github.com/deflord/3def/tree/main/Конфигурационные%20файлы/MKS%208V2/SB2040V3/500)). XY — **2WD sensorless** (TMC StallGuard). Z — Cartographer 3D (scan + touch). EBB — **STM32G0** (пины `PA*` / `PD*` / `PB*`).
+Весь конфиг — **один файл** `printer.cfg` (эталон [3Def SB2040V3/500](https://github.com/deflord/3def/tree/main/Конфигурационные%20файлы/MKS%208V2/SB2040V3/500): таймлапс, scrub, LED, Nevermore, датчик — **без модуля вкл/выкл**). XY — **2WD sensorless** (TMC StallGuard). Z — Cartographer 3D (scan + touch). EBB — **STM32G0** (пины `PA*` / `PD*` / `PB*`). (таймлапс, scrub, LED, Nevermore, датчик — эталон [3Def](https://github.com/deflord/3def/tree/main/Конфигурационные%20файлы/MKS%208V2/SB2040V3/500)). XY — **2WD sensorless** (TMC StallGuard). Z — Cartographer 3D (scan + touch). EBB — **STM32G0** (пины `PA*` / `PD*` / `PB*`).
 
 **Периферия:** `doc/peripherals_3def.md` | **Таймлапс:** `doc/timelapse_setup.md`
 
