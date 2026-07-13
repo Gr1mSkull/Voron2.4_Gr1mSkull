@@ -1,0 +1,42 @@
+#####################################################################
+# Orca Slicer — Machine G-code
+# Voron 2.4 500 Gr1mSkull | Kalico + Cartographer
+#
+# Документация Orca adaptive mesh:
+# https://github.com/OrcaSlicer/OrcaSlicer/wiki/printer_basic_information_adaptive_bed_mesh
+#####################################################################
+
+# ── Machine start G-code ───────────────────────────────────────────
+# Одна строка PRINT_START — Orca подставляет границы mesh при слайсинге.
+# ADAPTIVE=0 в макросе: зону считает Orca, не Klipper exclude_object.
+
+; Voron 2.4 Gr1mSkull — Kalico + Cartographer
+PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer] MESH_MIN_X={adaptive_bed_mesh_min[0]} MESH_MIN_Y={adaptive_bed_mesh_min[1]} MESH_MAX_X={adaptive_bed_mesh_max[0]} MESH_MAX_Y={adaptive_bed_mesh_max[1]} PROBE_COUNT_X={bed_mesh_probe_count[0]} PROBE_COUNT_Y={bed_mesh_probe_count[1]} MESH_ALGO=[bed_mesh_algo]
+
+
+# ── Machine end G-code ─────────────────────────────────────────────
+
+PRINT_END
+
+
+# ── Pause / Change filament ────────────────────────────────────────
+
+PAUSE
+
+
+# ── Printing by object / Before layer change / Layer change / Timelapse
+# moonraker-timelapse: установите плагин, макросы в printer.cfg (секция ТАЙМЛАПС)
+
+TIMELAPSE_TAKE_FRAME
+
+
+#####################################################################
+# Orca Printer Settings → Basic Information → Adaptive Bed Mesh
+#####################################################################
+#
+# bed_mesh_min: 30, 30        (как mesh_min в printer.cfg)
+# bed_mesh_max: 470, 470
+# bed_mesh_probe_distance: 50  (шаг сетки, мм)
+# adaptive_bed_mesh_margin: 10 (margin — Orca добавляет сам; в Klipper ADAPTIVE_MARGIN=0)
+#
+# Process → Others → Label objects: можно включить (exclude в UI), mesh не зависит от M117

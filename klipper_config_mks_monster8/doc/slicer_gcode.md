@@ -1,26 +1,39 @@
 # G-code для слайсеров — Voron 2.4 Gr1mSkull (Kalico + Cartographer)
 
-Вся подготовка (homing, QGL, touch home, **adaptive mesh**, продувка) — в макросе `PRINT_START`.
-В стартовый G-code слайсера **не** добавляйте: `G28`, `M190`, `M109`, `BED_MESH_CALIBRATE`, линию priming.
+Вся подготовка — в одном макросе **`PRINT_START`**.  
+Orca передаёт границы adaptive mesh **при слайсинге** (плейсхолдеры `{adaptive_bed_mesh_*}`).
+
+Документация Orca: [Adaptive Bed Mesh](https://github.com/OrcaSlicer/OrcaSlicer/wiki/printer_basic_information_adaptive_bed_mesh)
 
 ---
 
 ## Orca Slicer
 
-**Где:** Printer Settings → Machine G-code
+Полный блок — в [`orca/machine_gcode.txt`](../orca/machine_gcode.txt).
+
+### Настройка принтера (один раз)
+
+**Printer Settings → Basic Information → Adaptive Bed Mesh** (Advanced):
+
+| Параметр Orca | Значение |
+|---------------|----------|
+| `bed_mesh_min` | `30`, `30` |
+| `bed_mesh_max` | `470`, `470` |
+| `bed_mesh_probe_distance` | `50` (шаг точек, мм) |
+| `adaptive_bed_mesh_margin` | `10` |
+
+Margin Orca учитывает сам — в Klipper передаётся `ADAPTIVE_MARGIN=0`.
+
+**Process → Others → Label objects** — по желанию (exclude в UI; mesh от Orca не зависит).
 
 ### Machine start G-code
 
 ```gcode
 ; Voron 2.4 Gr1mSkull — Kalico + Cartographer
-PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
+PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer] MESH_MIN_X={adaptive_bed_mesh_min[0]} MESH_MIN_Y={adaptive_bed_mesh_min[1]} MESH_MAX_X={adaptive_bed_mesh_max[0]} MESH_MAX_Y={adaptive_bed_mesh_max[1]} PROBE_COUNT_X={bed_mesh_probe_count[0]} PROBE_COUNT_Y={bed_mesh_probe_count[1]} MESH_ALGO=[bed_mesh_algo]
 ```
 
-Если плейсхолдеры не подставляются (старая версия Orca), попробуйте:
-
-```gcode
-PRINT_START BED_TEMP={bed_temperature_initial_layer[current_extruder]} EXTRUDER_TEMP={nozzle_temperature_initial_layer[current_extruder]}
-```
+**Не добавляйте:** `G28`, `M190`, `M109`, отдельный `BED_MESH_CALIBRATE`, priming line, `T0`, `TIMELAPSE_TAKE_FRAME`.
 
 ### Machine end G-code
 
@@ -28,72 +41,83 @@ PRINT_START BED_TEMP={bed_temperature_initial_layer[current_extruder]} EXTRUDER_
 PRINT_END
 ```
 
-### Для adaptive mesh (обязательно)
-
-**Print settings → Others → Label objects** — включить.
-
-Без этого `BED_MESH_CALIBRATE ADAPTIVE=1` просканирует весь стол.
-
-### Что отключить в профиле Orca
-
-- Собственная калибровка стола / bed leveling в слайсере
-- Priming line / skirt только для прогрева (продувка уже в `PRINT_START`)
-- Дублирующий `G28` в Machine start
-
----
-
-## Bambu Studio (сторонний принтер / Klipper)
-
-**Где:** Printer Settings → Machine G-code  
-(профиль «Custom» / Voron, хост — Klipper через Moonraker)
-
-### Machine start G-code
-
-```gcode
-; Voron 2.4 Gr1mSkull — Kalico + Cartographer
-PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
-```
-
-### Machine end G-code
-
-```gcode
-PRINT_END
-```
-
-### Для adaptive mesh
-
-**Print settings → Others → Label objects** — включить.
-
-### Bambu Studio + Moonraker
-
-Печать через Fluidd/Mainsail (не с флешки Bambu). В профиле принтера укажите размер стола **500×500**, центр **250, 250**.
-
----
-
-## Пауза / отмена (опционально)
-
-Если слайсер вызывает стандартные команды — в Kalico уже есть макросы `PAUSE` / `RESUME` / `CANCEL_PRINT`.
-
-Orca / Bambu **Machine pause G-code** (при необходимости):
+### Pause / Change filament
 
 ```gcode
 PAUSE
 ```
 
-**Machine resume G-code:**
+### Layer change / Timelapse
+
+Установите [moonraker-timelapse](https://github.com/mainsail-crew/moonraker-timelapse) на RPi.  
+Макросы уже в `printer.cfg` (секция `# ТАЙМЛАПС`).
+
+**Orca → Machine G-code → Layer change:**
 
 ```gcode
-RESUME
+TIMELAPSE_TAKE_FRAME
+```
+
+Включение в консоли: `_SET_TIMELAPSE_SETUP ENABLE=True PARK_ENABLE=True`  
+Проверка: `GET_TIMELAPSE_SETUP`
+
+Без moonraker-timelapse оставьте поле пустым — иначе Klipper выдаст ошибку на неизвестную команду.
+
+### Проверка после слайсинга
+
+В `.gcode` одна строка `PRINT_START` с **числами** вместо плейсхолдеров:
+
+```gcode
+PRINT_START BED_TEMP=60 EXTRUDER_TEMP=240 MESH_MIN_X=45.2 MESH_MIN_Y=38.1 MESH_MAX_X=312.5 MESH_MAX_Y=285.0 PROBE_COUNT_X=6 PROBE_COUNT_Y=5 MESH_ALGO=bicubic
+```
+
+Если `MESH_MIN_X` и др. отсутствуют — в Orca не настроен Adaptive Bed Mesh в профиле принтера.
+
+### Ручная сетка (консоль)
+
+```
+MESH              ; полный стол
+MESH ADAPTIVE=1   ; Klipper exclude_object (без Orca)
+MESH SAVE=1       ; + SAVE_CONFIG
 ```
 
 ---
 
-## Проверка
+## Bambu Studio
 
-После слайсинга откройте `.gcode` — в начале файла должно быть:
+Тот же `PRINT_START` с плейсхолдерами Orca/Bambu, если слайсер их поддерживает; иначе укороченный вызов без mesh-параметров (полный скан из `[bed_mesh]`).
 
 ```gcode
-PRINT_START BED_TEMP=60 EXTRUDER_TEMP=240
+PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
 ```
 
-(числа из настроек филамента, не плейсхолдеры в квадратных скобках).
+```gcode
+PRINT_END
+```
+
+---
+
+## Типичные ошибки Orca
+
+| Ошибка | Решение |
+|--------|---------|
+| `TIMELAPSE_TAKE_FRAME` / `T0` | Очистить шаблон Bambu в Machine G-code |
+| `Extrude below minimum temp` | Убрать priming Orca — purge в `PRINT_START` |
+| Mesh на весь стол | Включить Adaptive Bed Mesh в профиле принтера Orca |
+
+---
+
+## Отслоение периметров
+
+Чаще всего это настройки слайсера и материала, не Klipper:
+
+| Проверить | Рекомендация |
+|-----------|--------------|
+| Температура сопла | +5…10°C для PETG/ABS; первый слой не ниже рекомендации производителя |
+| Обдув | Для PETG/ABS — 0…30% на периметрах; 100% только PLA |
+| Flow / коэффициент потока | Калибровка flow (Orca: calibration) — недоэкструзия даёт слабое сцепление слоёв |
+| Скорость периметра | Снизить outer wall speed на 10–20% для теста |
+| Pressure Advance | В `printer.cfg`: `0.052` — тонкая настройка: `SET_PRESSURE_ADVANCE ADVANCE=0.06` во время печати |
+| Z-offset | Слишком высоко — плохое прилипание; слишком низко — задевание и рваные линии |
+
+Тест PA в консоли: `SET_PRESSURE_ADVANCE ADVANCE=0.06` → напечатать башню → `SAVE_CONFIG` при удачном значении.

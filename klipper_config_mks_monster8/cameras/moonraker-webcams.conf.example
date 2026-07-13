@@ -1,0 +1,23 @@
+#####################################################################
+# Webcams для Mainsail — одна камера (корпус)
+#
+# Файл на Pi: ~/printer_data/config/moonraker-webcams.conf
+# В moonraker.conf добавьте:
+#   [include moonraker-webcams.conf]
+#
+# Требует Crowsnest [cam chamber] на порту 8080
+#####################################################################
+
+[webcam chamber]
+location: chamber
+service: crowsnest
+enabled: true
+target_fps: 15
+stream_url: /webcam/?action=stream
+snapshot_url: /webcam/?action=snapshot
+flip_horizontal: false
+flip_vertical: false
+rotation: 0
+
+# Удалите или закомментируйте [webcam nozzle], если камеры на сопле нет.
+# Старый nozzle с /webcam2/ даёт пустой экран в Mainsail.
