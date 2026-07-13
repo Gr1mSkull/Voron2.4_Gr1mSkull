@@ -1,0 +1,62 @@
+#####################################################################
+# Orca Slicer — Machine G-code
+# Voron 2.4 500 Gr1mSkull | Kalico + Cartographer
+#
+# Куда вставлять: Printer preset → Printer Settings → Machine G-code
+# Профиль принтера: 500×500, origin — угол (0,0), Klipper/Moonraker
+#####################################################################
+
+# ── Machine start G-code ───────────────────────────────────────────
+# Всё подготовительное (G28, QGL, mesh, purge) — внутри PRINT_START.
+# НЕ добавляйте сюда: G28, M190, M109, BED_MESH_CALIBRATE, priming line.
+
+; Voron 2.4 Gr1mSkull — Kalico + Cartographer
+PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer]
+
+
+# ── Machine end G-code ─────────────────────────────────────────────
+
+PRINT_END
+
+
+# ── Pause G-code ───────────────────────────────────────────────────
+# Fluidd/Mainsail «Pause» и Orca M600 / вставка паузы в G-code viewer
+
+PAUSE
+
+
+# ── Machine resume G-code ────────────────────────────────────────────
+# (если в вашей версии Orca есть отдельное поле; иначе — через UI принтера)
+
+RESUME
+
+
+# ── Change filament G-code ─────────────────────────────────────────
+# Orca вставляет при M600 / смене филамента
+
+PAUSE
+
+
+# ── Printing by object G-code ──────────────────────────────────────
+# Оставить пустым. Adaptive mesh строится один раз в PRINT_START.
+# При печати «по объектам» включите Label objects и при необходимости
+# добавьте сюда: MESH ADAPTIVE=1
+
+
+# ── Before layer change G-code ─────────────────────────────────────
+# Оставить пустым
+
+
+# ── Layer change G-code ─────────────────────────────────────────────
+# Оставить пустым
+
+
+# ── Timelapse G-code ───────────────────────────────────────────────
+# Оставить пустым (или свой скрипт, если используете timelapse-плагин)
+
+
+#####################################################################
+# Filament preset → Advanced → Start G-code (опционально, дублировать)
+#####################################################################
+
+; PRINT_START BED_TEMP={bed_temperature_initial_layer[initial_extruder]} EXTRUDER_TEMP={nozzle_temperature_initial_layer[initial_extruder]}
