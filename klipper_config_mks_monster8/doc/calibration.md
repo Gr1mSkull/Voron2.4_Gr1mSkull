@@ -379,10 +379,6 @@ PURGE_LINE
 
 Координаты линии: X 50→150, Y=20 (настраивается в `_USER_VARIABLES`).
 
-Лимит Klipper: `max_extrude_cross_section = 4 × nozzle²` → для 0.4 мм сопла **0.640 mm²**.  
-Старая настройка `purge_extrude: 35` на линии 100 мм давала **0.842 mm²** и ошибку при старте.  
-Макрос `_PURGE_LINE` автоматически ограничивает E; по умолчанию `purge_extrude: 26`.
-
 ---
 
 ## 13. Что делает каждая печать (PRINT_START)
@@ -399,7 +395,7 @@ PURGE_LINE
 | 6 | `G28 Z` |
 | 7 | Нагрев сопла до 150 °C → `M109` |
 | 8 | `CARTOGRAPHER_TOUCH_HOME` |
-| 9 | `BED_MESH_CALIBRATE` — adaptive если объекты уже в G-code, иначе полный скан |
+| 9 | `BED_MESH_CALIBRATE ADAPTIVE=1` |
 | 10 | Нагрев сопла до рабочей температуры |
 | 11 | Продувочная линия `_PURGE_LINE` |
 | 12 | Парковка в центр стола |
