@@ -72,9 +72,7 @@ klipper_config_mks_monster8/
 | Макрос | Назначение |
 |--------|------------|
 | `G32` | Homing + QGL (без mesh) |
-| `PRINT_START` | Homing, QGL, touch home |
-| `MESH ADAPTIVE=1` | Adaptive mesh (в G-code слайсера) |
-| `PRINT_BEGIN` | Нагрев + продувочная линия |
+| `PRINT_START` | Старт: Orca adaptive mesh + touch + purge |
 | `PRINT_END` | Завершение печати |
 | `PURGE_LINE` | Только продувка (тест) |
 | `MESH` | Ручная сетка (`MESH ADAPTIVE=1` — по объекту) |
